@@ -21,7 +21,6 @@ $RECYCLE.BIN/
 # Environment / secrets
 # -------------------------
 .env
-.env.*.local
 *.secret
 *.key
 *.pem

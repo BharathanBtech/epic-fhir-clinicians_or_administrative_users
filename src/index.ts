@@ -20,13 +20,17 @@ const PORT = Number(process.env.PORT) || 4000;
 
 // Step 1: Launch endpoint — redirect to Epic authorization URL
 app.get('/launch', (req: Request, res: Response) => {
-  const state = 'abc123'; // Can be dynamic
+  const state = Math.random().toString(36).substring(2, 15); // Generates a random string
   const scope = encodeURIComponent('launch/patient openid fhirUser');
+
+  console.log(`Generated state: ${state}`);
+  console.log('Redirecting user to Epic authorization URL...');
 
   const authRedirect = `${AUTH_URL}?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
     REDIRECT_URI
   )}&scope=${scope}&state=${state}&aud=${encodeURIComponent(FHIR_BASE)}`;
 
+  console.log(`Authorization URL: ${authRedirect}`);
   res.redirect(authRedirect);
 });
 
@@ -34,11 +38,17 @@ app.get('/launch', (req: Request, res: Response) => {
 app.get('/callback', async (req: Request, res: Response) => {
   const { code } = req.query;
 
+  console.log('Received callback from Epic.');
+  console.log(`Authorization code received: ${code}`);
+
   if (!code) {
+    console.error('No authorization code received.');
     return res.status(400).send('Missing authorization code.');
   }
 
   try {
+    console.log('Exchanging authorization code for access token...');
+
     const tokenResponse = await axios.post(
       TOKEN_URL,
       new URLSearchParams({
@@ -55,10 +65,15 @@ app.get('/callback', async (req: Request, res: Response) => {
       }
     );
 
+    console.log('Access token received successfully.');
     const tokenData = tokenResponse.data;
     const accessToken = tokenData.access_token;
 
+    console.log(`Access Token: ${accessToken}`);
+
     // Step 3: Call Epic FHIR Patient search
+    console.log('Calling Epic FHIR API for patient search...');
+
     const patientResponse = await axios.get(
       `${FHIR_BASE}/Patient?given=John&family=Smith`,
       {
@@ -68,13 +83,16 @@ app.get('/callback', async (req: Request, res: Response) => {
       }
     );
 
+    console.log('Patient search successful. Returning data to client.');
+
     res.json({
       token: tokenData,
       patientSearchResults: patientResponse.data
     });
 
   } catch (err: any) {
-    console.error('Token exchange or API call failed:', err.response?.data || err.message);
+    console.error('Token exchange or API call failed:');
+    console.error(err.response?.data || err.message);
     res.status(500).json(err.response?.data || { error: err.message });
   }
 });
