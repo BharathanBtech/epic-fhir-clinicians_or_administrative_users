@@ -29,7 +29,7 @@ export async function searchPatient(token: string, given: string, family: string
   return response.data;
 }
 
-/* export async function getPatientSummary(token: string, patientId: string) {
+ export async function getPatientSummary(token: string, patientId: string) {
   const headers = { Authorization: `Bearer ${token}` };
 
   const [patient, conditions, medications, allergies] = await Promise.all([
@@ -51,4 +51,3 @@ export async function searchPatient(token: string, given: string, family: string
   };
 }
 
-*/  

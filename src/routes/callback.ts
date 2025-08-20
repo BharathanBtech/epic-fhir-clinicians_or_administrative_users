@@ -18,7 +18,11 @@ router.get('/', async (req, res) => {
     console.log('Access token received successfully.');
     console.log('Access Token:', tokenData.access_token);
 
-    res.json({ token: tokenData });
+    // Store token in session or pass as query param
+    (req as any).session.token = tokenData; // If using express-session
+    (req as any).session.patientId = tokenData.patient
+
+    res.redirect('/dashboard'); // Or wherever you want the user to go
   } catch (err: any) {
     console.error('Token exchange failed:', err.response?.data || err.message);
     res.status(500).json(err.response?.data || { error: err.message });
