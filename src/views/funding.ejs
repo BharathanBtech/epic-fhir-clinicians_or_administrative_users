@@ -563,16 +563,26 @@
                             <tr>
                                 <td><%= eob.id %></td>
                                 <td><%= eob.status %></td>
-                                <td><%= eob.type || 'N/A' %></td>
+                                <td><%= eob.type?.coding?.[0]?.display || eob.type?.text || eob.type || 'N/A' %></td>
                                 <td><%= eob.billablePeriod?.start || 'N/A' %></td>
                                 <td><%= eob.provider || 'N/A' %></td>
                                 <td>
                                     <% 
                                     let totalAmount = 0;
                                     if (eob.total && eob.total.length > 0) {
-                                        const benefitTotal = eob.total.find(t => t.category === 'benefit');
+                                        // Try to find benefit amount first
+                                        const benefitTotal = eob.total.find(t => 
+                                            t.category?.text === 'benefit' || 
+                                            (typeof t.category === 'string' && t.category.toLowerCase().includes('benefit'))
+                                        );
                                         if (benefitTotal) {
                                             totalAmount = benefitTotal.amount?.value || benefitTotal.amount || 0;
+                                        } else {
+                                            // If no benefit found, sum all amounts
+                                            totalAmount = eob.total.reduce((sum, t) => {
+                                                const amount = t.amount?.value || t.amount || 0;
+                                                return sum + amount;
+                                            }, 0);
                                         }
                                     }
                                     %>
@@ -677,7 +687,7 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Type</span>
-                            <span class="detail-value">${getTextFromFHIR(eob.type)}</span>
+                            <span class="detail-value">${eob.type?.coding?.[0]?.display || getTextFromFHIR(eob.type)}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Created</span>
