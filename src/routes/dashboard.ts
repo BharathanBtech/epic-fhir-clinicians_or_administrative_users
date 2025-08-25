@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 
   try {
     const summary = await getPatientSummary(tokenData.access_token, patientId);
-    res.json({ summary });
+    res.render('dashboard', { summary });
   } catch (err: any) {
     console.error('Failed to fetch patient summary:', err.message);
     res.status(500).send('Error fetching patient data.');

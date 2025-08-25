@@ -1,0 +1,48 @@
+<!-- filepath: /home/tekadmin/practice/epic-fhir-clinicians_or_administrative_users/src/views/dashboard.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Patient Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    h1 { color: #2c3e50; }
+    ul { list-style-type: disc; margin-left: 2em; }
+    .section { margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+  <h1>Patient Summary</h1>
+  <div class="section">
+    <h2>Demographics</h2>
+    <ul>
+      <li><strong>Name:</strong> <%= summary.demographics.name %></li>
+      <li><strong>Gender:</strong> <%= summary.demographics.gender %></li>
+      <li><strong>Birth Date:</strong> <%= summary.demographics.birthDate %></li>
+    </ul>
+  </div>
+  <div class="section">
+    <h2>Conditions</h2>
+    <ul>
+      <% summary.conditions.forEach(function(cond) { %>
+        <li><%= cond %></li>
+      <% }); %>
+    </ul>
+  </div>
+  <div class="section">
+    <h2>Medications</h2>
+    <ul>
+      <% summary.medications.forEach(function(med) { %>
+        <li><%= med %></li>
+      <% }); %>
+    </ul>
+  </div>
+  <div class="section">
+    <h2>Allergies</h2>
+    <ul>
+      <% summary.allergies.forEach(function(allergy) { %>
+        <li><%= allergy %></li>
+      <% }); %>
+    </ul>
+  </div>
+</body>
+</html>
