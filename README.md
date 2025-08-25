@@ -1,151 +1,260 @@
 # Epic FHIR Patient Funding & Payment Automation
 
-This project is a Node.js/TypeScript backend service that integrates with Epic's FHIR API using OAuth2 authentication. It enables clinicians or administrative users to securely access patient data, insurance information, and payment details from Epic via FHIR endpoints for automated funding and payment processing.
+A modern, modular Node.js/TypeScript application that integrates with Epic's FHIR APIs to automate patient funding and payment processes. This application serves as a bridge between Epic (FHIR APIs) and internal funding applications, providing real-time patient, insurance, and claim information.
 
-## Features
+## 🏗️ Architecture Overview
 
-- **OAuth2 Authorization Code Flow** with Epic
-- **Patient Search** through Epic's secure interface
-- **Patient Funding Dashboard** with real-time financial data
-- **Insurance Coverage** information and eligibility
-- **Explanation of Benefits (EOB)** access and detailed breakdown
-- **Payment Automation** calculations and summaries
-- **Session Management** for storing tokens and patient context
-- **Modular Express Routing** for comprehensive FHIR integration
+The application follows a **modular, service-oriented architecture** with clear separation of concerns:
 
-## New Funding & Payment Features
+```
+src/
+├── config/           # Configuration management
+├── middleware/       # Express middleware
+├── routes/          # Route handlers
+├── services/        # Business logic services
+├── types/           # TypeScript interfaces
+├── utils/           # Utility functions
+└── views/           # EJS templates
+```
 
-### Patient Funding Screen
-- **Patient Demographics**: Name, MRN, DOB, contact information
-- **Insurance Details**: Coverage status, payor information, effective dates
-- **Funding Summary**: Total billed, covered amounts, patient responsibility
-- **Financial Breakdown**: Copay, deductible, remaining balance calculations
+## 🚀 Key Features
 
-### EOB (Explanation of Benefits) Access
-- **High-level Claim Info**: Claim ID, status, service dates, provider details
-- **Financial Information**: Billed amounts, insurance coverage, patient responsibility
-- **Line Item Breakdown**: Service descriptions, CPT/HCPCS codes, allowed vs billed amounts
-- **Interactive Modal**: Detailed EOB view with comprehensive claim information
+- **Patient Search & Selection**: Epic FHIR launch integration with patient context
+- **Real-time Data Retrieval**: Patient demographics, insurance coverage, and EOBs
+- **Funding Dashboard**: Comprehensive patient funding summary and calculations
+- **EOB Management**: Detailed Explanation of Benefits viewing with line-item breakdown
+- **Modular Architecture**: Clean, maintainable codebase with focused modules
+- **Type Safety**: Full TypeScript support with comprehensive interfaces
+- **Error Handling**: Centralized error management and logging
+- **Configuration Management**: Environment-based configuration system
 
-### FHIR APIs Integrated
-- **Patient**: Demographics and contact information
-- **Coverage**: Insurance details and eligibility
-- **ExplanationOfBenefit**: Complete EOB data and financial breakdowns
+## 📋 Prerequisites
 
-## Getting Started
+- Node.js 18+ 
+- npm or yarn
+- Epic FHIR API access credentials
+- Valid Epic OAuth2 application registration
 
-### Prerequisites
+## 🛠️ Installation
 
-- Node.js (v18+ recommended)
-- npm
-- Epic FHIR sandbox credentials
-
-### Setup
-
-1. Clone the repository:
+1. **Clone the repository**:
    ```bash
-   git clone <your-repo-url>
+   git clone <repository-url>
    cd epic-fhir-clinicians_or_administrative_users
    ```
 
-2. Install dependencies:
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. Copy `.env.example` to `.env` and fill in your Epic credentials and endpoints:
-   ```
+3. **Configure environment variables**:
+   Create a `.env` file in the root directory:
+   ```env
+   # Epic FHIR Configuration
+   FHIR_BASE=https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4
    CLIENT_ID=your_epic_client_id
    CLIENT_SECRET=your_epic_client_secret
-   REDIRECT_URI=https://your-ngrok-url/callback
-   AUTH_URL=https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize
+   REDIRECT_URI=http://localhost:4000/callback
    TOKEN_URL=https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token
-   FHIR_BASE=https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4
-   SESSION_SECRET=your_session_secret
+   AUTH_URL=https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize
+   
+   # Application Configuration
    PORT=4000
+   SESSION_SECRET=your_session_secret
+   NODE_ENV=development
    ```
 
-4. Start the server:
+4. **Build the application**:
    ```bash
-   npm run dev
+   npm run build
    ```
 
-### Usage
+5. **Start the server**:
+   ```bash
+   npm start
+   ```
 
-1. **Patient Search:**
-   - Visit `/patient-search` to access the funding application
-   - Click "Search Patient" to initiate Epic OAuth2 login
-   - Select a patient through Epic's interface
+## 🏃‍♂️ Usage Flow
 
-2. **Funding Dashboard:**
-   - After patient selection, you'll be redirected to `/funding`
-   - View patient demographics, insurance coverage, and funding summary
-   - Access detailed EOB information for each claim
+### 1. Patient Search
+- Navigate to `http://localhost:4000`
+- Click "Search Patient" to initiate Epic FHIR launch
+- Select a patient in Epic's interface
+- Return to application with patient context
 
-3. **EOB Details:**
-   - Click "View EOB" on any claim to see detailed breakdown
-   - Review service items, financial calculations, and payment information
-   - Export or download EOB data (future enhancement)
+### 2. Funding Dashboard
+- View patient demographics and insurance information
+- See comprehensive funding summary with calculations
+- Access Explanation of Benefits (EOB) list
+- Use refresh icons to update specific components
 
-### Project Structure
+### 3. EOB Details
+- Click "View EOB" on any claim to see detailed breakdown
+- Review service dates, amounts, and adjudications
+- Analyze patient responsibility and coverage details
 
-- `src/index.ts` - Main Express app with all routes
-- `src/routes/`
-  - `launch.ts` - OAuth2 launch endpoint
-  - `callback.ts` - OAuth2 callback handler
-  - `patient-search.ts` - Patient search interface
-  - `funding.ts` - Patient funding dashboard
-  - `patient.ts` - Patient search endpoint
-  - `summary.ts` - Patient summary endpoint
-  - `dashboard.ts` - Legacy dashboard endpoint
-- `src/services/epicService.ts` - Epic FHIR API integration
-- `src/views/`
-  - `patient-search.ejs` - Patient search landing page
-  - `funding.ejs` - Patient funding dashboard
-  - `dashboard.ejs` - Legacy patient summary view
-- `src/utils/state.ts` - OAuth2 state generation
+## 🏗️ Project Structure
 
-### FHIR Endpoints Used
+### Core Modules
 
-- `GET /Patient/{id}` - Patient demographics
-- `GET /Coverage?patient={id}` - Insurance coverage
-- `GET /ExplanationOfBenefit?patient={id}` - EOB data
-- `GET /ExplanationOfBenefit/{id}` - Specific EOB details
+#### **Configuration (`src/config/`)**
+- `index.ts` - Centralized configuration management
+- Environment variable validation
+- Feature flags and application settings
 
-### User Flow
+#### **Services (`src/services/`)**
+- `patientService.ts` - Patient data operations
+- `coverageService.ts` - Insurance coverage management
+- `eobService.ts` - Explanation of Benefits processing
+- `fundingService.ts` - Funding calculations and summaries
+- `authService.ts` - OAuth2 authentication handling
+- `epicService.ts` - Legacy compatibility layer
 
-1. **Landing Page** (`/patient-search`) - Modern UI with search button
-2. **Epic Launch** (`/patient-search/launch`) - OAuth2 authentication
-3. **Patient Selection** - Epic's patient search interface
-4. **Callback** (`/callback`) - Token exchange and patient context
-5. **Funding Dashboard** (`/funding`) - Complete patient funding view
-6. **EOB Details** - Modal popup with detailed claim information
+#### **Types (`src/types/`)**
+- `fhir.ts` - Comprehensive FHIR resource interfaces
+- Type-safe data structures for all FHIR resources
+- Application-specific type definitions
 
-## Future Enhancements
+#### **Utilities (`src/utils/`)**
+- `fhirHelpers.ts` - FHIR data processing utilities
+- `logger.ts` - Centralized logging service
+- `state.ts` - OAuth2 state management
 
-- **Payment Processing**: Direct payment integration with payment gateways
-- **Automated Payments**: Trigger payments directly from EOB screen
-- **Audit Logging**: Comprehensive audit trails for funding and payments
-- **Role-based Access**: Different views for patients, providers, and finance teams
-- **Export Features**: PDF/CSV download for EOB and funding data
-- **Real-time Updates**: WebSocket integration for live data updates
+#### **Middleware (`src/middleware/`)**
+- `auth.ts` - Authentication and session validation
+- `errorHandler.ts` - Error handling and logging
 
-## Security Features
+#### **Routes (`src/routes/`)**
+- `patient-search.ts` - Patient search landing page
+- `launch.ts` - Epic FHIR launch initiation
+- `callback.ts` - OAuth2 callback handling
+- `funding.ts` - Funding dashboard and EOB management
+- Legacy routes for backward compatibility
 
-- OAuth2 authorization code flow with Epic
-- Session-based token storage
-- State parameter for CSRF protection
-- Secure token exchange
-- HTTPS requirement for production
+## 🔧 Development
 
-## Notes
+### Available Scripts
 
-- Use [ngrok](https://ngrok.com/) for public HTTPS endpoints during development
-- Ensure session middleware is configured for authentication context
-- Update environment variables for your Epic sandbox
-- All patient data is retrieved in real-time from Epic's FHIR APIs
-- No patient data is stored locally - all data is fetched on-demand
+```bash
+npm run dev      # Start development server with hot reload
+npm run build    # Build TypeScript to JavaScript
+npm start        # Start production server
+npm run clean    # Clean build artifacts
+```
 
-## License
+### Code Organization Principles
 
-MIT
+1. **Single Responsibility**: Each module has one clear purpose
+2. **Dependency Injection**: Services are loosely coupled
+3. **Type Safety**: Comprehensive TypeScript interfaces
+4. **Error Handling**: Centralized error management
+5. **Logging**: Structured logging throughout the application
+6. **Configuration**: Environment-based configuration management
+
+### Adding New Features
+
+1. **Create TypeScript interfaces** in `src/types/`
+2. **Implement business logic** in `src/services/`
+3. **Add route handlers** in `src/routes/`
+4. **Create views** in `src/views/`
+5. **Update configuration** in `src/config/` if needed
+
+## 🔍 API Endpoints
+
+### Patient Management
+- `GET /patient-search` - Patient search landing page
+- `GET /patient-search/launch` - Initiate Epic FHIR launch
+- `GET /callback` - OAuth2 callback handler
+
+### Funding Dashboard
+- `GET /funding` - Main funding dashboard
+- `GET /funding/eob/:eobId` - Get specific EOB details
+- `GET /funding/api/summary` - AJAX funding summary
+- `GET /funding/api/insurance` - AJAX insurance refresh
+- `GET /funding/api/eob` - AJAX EOB refresh
+
+### Legacy Endpoints
+- `GET /patient` - Patient search by name
+- `GET /summary` - Patient summary data
+- `GET /dashboard` - Legacy dashboard
+
+## 🛡️ Security
+
+- **OAuth2 Authorization Code Flow** with Epic
+- **Session-based authentication** with secure cookies
+- **Environment variable protection** for sensitive data
+- **Input validation** and sanitization
+- **Error message sanitization** in production
+
+## 📊 Logging
+
+The application uses a centralized logging system with different levels:
+
+- **ERROR**: Application errors and failures
+- **WARN**: Warning conditions
+- **INFO**: General information
+- **DEBUG**: Detailed debugging information (development only)
+
+Logs include structured data for better analysis and monitoring.
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+npm run build
+npm start
+```
+
+### Environment Variables for Production
+```env
+NODE_ENV=production
+SESSION_SECRET=strong_random_secret
+# ... other Epic FHIR credentials
+```
+
+### Docker Support
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY dist ./dist
+EXPOSE 4000
+CMD ["npm", "start"]
+```
+
+## 🔮 Future Enhancements
+
+- **Automated Payments**: Direct payment processing from EOB screen
+- **Payment Gateway Integration**: Stripe, PayPal, or other payment processors
+- **Audit Logging**: Comprehensive audit trails for compliance
+- **Role-Based Access Control**: Patient, provider, and finance team roles
+- **Real-time Notifications**: WebSocket-based updates
+- **Mobile Support**: Progressive Web App (PWA) features
+- **Advanced Analytics**: Funding trends and reporting
+- **Bulk Operations**: Batch processing for multiple patients
+
+## 🤝 Contributing
+
+1. Follow the modular architecture principles
+2. Add comprehensive TypeScript interfaces
+3. Include proper error handling and logging
+4. Write clear documentation for new features
+5. Test thoroughly with Epic FHIR sandbox
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For issues and questions:
+1. Check the logging output for detailed error information
+2. Verify Epic FHIR API credentials and permissions
+3. Ensure all environment variables are properly configured
+4. Review the modular architecture documentation
+
+---
+
+**Built with ❤️ for healthcare interoperability and patient care automation**
