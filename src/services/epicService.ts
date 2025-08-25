@@ -176,6 +176,8 @@ export async function getExplanationOfBenefits(token: string, patientId: string)
       programCode: item.programCode?.map((p: any) => p.text),
       servicedDate: item.servicedDate,
       servicedPeriod: item.servicedPeriod,
+      servicedPeriodStart: item.servicedPeriod?.start || item.servicedDate,
+      servicedPeriodEnd: item.servicedPeriod?.end || item.servicedDate,
       locationCodeableConcept: item.locationCodeableConcept?.text,
       locationAddress: item.locationAddress,
       locationReference: item.locationReference?.display,
