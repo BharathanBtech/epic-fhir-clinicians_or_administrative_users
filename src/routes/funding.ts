@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPatientFundingSummary, getSpecificEOB } from '../services/epicService.js';
+import { getPatientFundingSummary, getSpecificEOB, getPatientCoverage, getExplanationOfBenefits } from '../services/epicService.js';
 
 const router = Router();
 
@@ -57,6 +57,42 @@ router.get('/api/summary', async (req, res) => {
     res.json(fundingData);
   } catch (err: any) {
     console.error('Failed to fetch funding summary:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// API endpoint for refreshing insurance coverage only
+router.get('/api/insurance', async (req, res) => {
+  const tokenData = (req as any).session?.token;
+  const patientId = (req as any).session?.patientId;
+
+  if (!tokenData || !patientId) {
+    return res.status(401).json({ error: 'Not authenticated or no patient selected' });
+  }
+
+  try {
+    const coverage = await getPatientCoverage(tokenData.access_token, patientId);
+    res.json({ coverage });
+  } catch (err: any) {
+    console.error('Failed to fetch insurance coverage:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// API endpoint for refreshing EOB data only
+router.get('/api/eob', async (req, res) => {
+  const tokenData = (req as any).session?.token;
+  const patientId = (req as any).session?.patientId;
+
+  if (!tokenData || !patientId) {
+    return res.status(401).json({ error: 'Not authenticated or no patient selected' });
+  }
+
+  try {
+    const eobs = await getExplanationOfBenefits(tokenData.access_token, patientId);
+    res.json({ eobs });
+  } catch (err: any) {
+    console.error('Failed to fetch EOB data:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

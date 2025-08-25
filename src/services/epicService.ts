@@ -106,12 +106,28 @@ export async function getExplanationOfBenefits(token: string, patientId: string)
     console.log('📋 EOB API Response status:', response.status);
     console.log('📋 EOB API Response data keys:', Object.keys(response.data));
     console.log('📋 EOB entries count:', response.data.entry?.length || 0);
+    console.log('📋 EOB total from API:', response.data.total);
     
     if (response.data.entry && response.data.entry.length > 0) {
+      console.log('📋 All EOB entry IDs:', response.data.entry.map((entry: any) => entry.resource?.id || 'No ID'));
       console.log('📋 Sample EOB entry structure:', JSON.stringify(response.data.entry[0], null, 2));
     }
     
-    return response.data.entry?.map((entry: any) => ({
+    // Filter out invalid entries and ensure we only process valid EOB resources
+    const validEntries = response.data.entry?.filter((entry: any) => 
+      entry.resource && entry.resource.resourceType === 'ExplanationOfBenefit'
+    ) || [];
+    
+    console.log('📋 Valid EOB entries count:', validEntries.length);
+    
+    // Remove duplicates based on resource ID
+    const uniqueEntries = validEntries.filter((entry: any, index: number, self: any[]) => 
+      index === self.findIndex((e: any) => e.resource.id === entry.resource.id)
+    );
+    
+    console.log('📋 Unique EOB entries count:', uniqueEntries.length);
+    
+    return uniqueEntries.map((entry: any) => ({
     id: entry.resource.id || entry.resource.identifier?.[0]?.value || 'Unknown',
     status: entry.resource.status,
     type: entry.resource.type?.text,
@@ -308,6 +324,7 @@ export async function getPatientFundingSummary(token: string, patientId: string)
     console.log('  - Patient details:', patientDetails ? '✅' : '❌');
     console.log('  - Coverage count:', coverage?.length || 0);
     console.log('  - EOBs count:', eobs?.length || 0);
+    console.log('  - EOBs IDs:', eobs?.map((eob: any) => eob.id) || []);
     
     // Calculate funding summary from EOBs
     const fundingSummary = {
