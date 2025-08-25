@@ -98,11 +98,20 @@ export async function getPatientCoverage(token: string, patientId: string) {
 }
 
 export async function getExplanationOfBenefits(token: string, patientId: string) {
+  console.log('📋 Fetching ExplanationOfBenefits for patientId:', patientId);
   const headers = { Authorization: `Bearer ${token}` };
   
-  const response = await axios.get(`${process.env.FHIR_BASE}/ExplanationOfBenefit?patient=${patientId}`, { headers });
-  
-  return response.data.entry?.map((entry: any) => ({
+  try {
+    const response = await axios.get(`${process.env.FHIR_BASE}/ExplanationOfBenefit?patient=${patientId}`, { headers });
+    console.log('📋 EOB API Response status:', response.status);
+    console.log('📋 EOB API Response data keys:', Object.keys(response.data));
+    console.log('📋 EOB entries count:', response.data.entry?.length || 0);
+    
+    if (response.data.entry && response.data.entry.length > 0) {
+      console.log('📋 Sample EOB entry structure:', JSON.stringify(response.data.entry[0], null, 2));
+    }
+    
+    return response.data.entry?.map((entry: any) => ({
     id: entry.resource.id,
     status: entry.resource.status,
     type: entry.resource.type?.text,
@@ -269,6 +278,10 @@ export async function getExplanationOfBenefits(token: string, patientId: string)
       }))
     }))
   })) || [];
+  } catch (error) {
+    console.error('❌ Error fetching ExplanationOfBenefits:', error);
+    throw error;
+  }
 }
 
 export async function getSpecificEOB(token: string, eobId: string) {
@@ -280,62 +293,132 @@ export async function getSpecificEOB(token: string, eobId: string) {
 }
 
 export async function getPatientFundingSummary(token: string, patientId: string) {
-  const headers = { Authorization: `Bearer ${token}` };
+  console.log('🔍 Starting getPatientFundingSummary for patientId:', patientId);
   
-  // Get patient details, coverage, and EOBs in parallel
-  const [patientDetails, coverage, eobs] = await Promise.all([
-    getPatientDetails(token, patientId),
-    getPatientCoverage(token, patientId),
-    getExplanationOfBenefits(token, patientId)
-  ]);
-  
-  // Calculate funding summary from EOBs
-  const fundingSummary = {
-    totalBilled: 0,
-    totalCovered: 0,
-    totalPatientResponsibility: 0,
-    totalCopay: 0,
-    totalDeductible: 0,
-    remainingBalance: 0,
-    claimCount: eobs.length
-  };
-  
-  eobs.forEach((eob: any) => {
-    // Calculate totals from EOB items
-    eob.item?.forEach((item: any) => {
-      const billedAmount = item.net?.value || 0;
-      const coveredAmount = item.adjudication?.reduce((sum: number, adj: any) => {
-        if (adj.category?.text === 'benefit') return sum + (adj.amount?.value || 0);
-        return sum;
-      }, 0) || 0;
-      const patientResponsibility = item.adjudication?.reduce((sum: number, adj: any) => {
-        if (adj.category?.text === 'patient') return sum + (adj.amount?.value || 0);
-        return sum;
-      }, 0) || 0;
-      const copayAmount = item.adjudication?.reduce((sum: number, adj: any) => {
-        if (adj.category?.text === 'copay') return sum + (adj.amount?.value || 0);
-        return sum;
-      }, 0) || 0;
-      const deductibleAmount = item.adjudication?.reduce((sum: number, adj: any) => {
-        if (adj.category?.text === 'deductible') return sum + (adj.amount?.value || 0);
-        return sum;
-      }, 0) || 0;
-      
-      fundingSummary.totalBilled += billedAmount;
-      fundingSummary.totalCovered += coveredAmount;
-      fundingSummary.totalPatientResponsibility += patientResponsibility;
-      fundingSummary.totalCopay += copayAmount;
-      fundingSummary.totalDeductible += deductibleAmount;
-    });
-  });
-  
-  fundingSummary.remainingBalance = fundingSummary.totalPatientResponsibility - fundingSummary.totalCopay - fundingSummary.totalDeductible;
-  
-  return {
-    patient: patientDetails,
-    coverage: coverage,
-    eobs: eobs,
-    fundingSummary: fundingSummary
-  };
+  try {
+    // Get patient details, coverage, and EOBs in parallel
+    console.log('📡 Fetching patient details, coverage, and EOBs...');
+    const [patientDetails, coverage, eobs] = await Promise.all([
+      getPatientDetails(token, patientId),
+      getPatientCoverage(token, patientId),
+      getExplanationOfBenefits(token, patientId)
+    ]);
+    
+    console.log('✅ Data fetched successfully:');
+    console.log('  - Patient details:', patientDetails ? '✅' : '❌');
+    console.log('  - Coverage count:', coverage?.length || 0);
+    console.log('  - EOBs count:', eobs?.length || 0);
+    
+    // Calculate funding summary from EOBs
+    const fundingSummary = {
+      totalBilled: 0,
+      totalCovered: 0,
+      totalPatientResponsibility: 0,
+      totalCopay: 0,
+      totalDeductible: 0,
+      remainingBalance: 0,
+      claimCount: eobs?.length || 0
+    };
+    
+    console.log('💰 Processing EOBs for funding calculations...');
+    
+    if (eobs && eobs.length > 0) {
+      eobs.forEach((eob: any, index: number) => {
+        console.log(`  📋 Processing EOB ${index + 1}/${eobs.length}:`, eob.id);
+        console.log(`    - Status: ${eob.status}`);
+        console.log(`    - Items count: ${eob.item?.length || 0}`);
+        
+        // Calculate totals from EOB items
+        if (eob.item && eob.item.length > 0) {
+          eob.item.forEach((item: any, itemIndex: number) => {
+            console.log(`    - Item ${itemIndex + 1}: ${item.productOrService || 'Unknown service'}`);
+            
+            const billedAmount = item.net?.value || 0;
+            console.log(`      - Billed amount: $${billedAmount}`);
+            
+            // Log adjudication details
+            if (item.adjudication && item.adjudication.length > 0) {
+              console.log(`      - Adjudications:`, item.adjudication.map((adj: any) => ({
+                category: adj.category?.text,
+                amount: adj.amount?.value,
+                reason: adj.reason?.text
+              })));
+            } else {
+              console.log(`      - No adjudications found`);
+            }
+            
+            const coveredAmount = item.adjudication?.reduce((sum: number, adj: any) => {
+              if (adj.category?.text === 'benefit') {
+                console.log(`        + Adding benefit: $${adj.amount?.value || 0}`);
+                return sum + (adj.amount?.value || 0);
+              }
+              return sum;
+            }, 0) || 0;
+            
+            const patientResponsibility = item.adjudication?.reduce((sum: number, adj: any) => {
+              if (adj.category?.text === 'patient') {
+                console.log(`        + Adding patient responsibility: $${adj.amount?.value || 0}`);
+                return sum + (adj.amount?.value || 0);
+              }
+              return sum;
+            }, 0) || 0;
+            
+            const copayAmount = item.adjudication?.reduce((sum: number, adj: any) => {
+              if (adj.category?.text === 'copay') {
+                console.log(`        + Adding copay: $${adj.amount?.value || 0}`);
+                return sum + (adj.amount?.value || 0);
+              }
+              return sum;
+            }, 0) || 0;
+            
+            const deductibleAmount = item.adjudication?.reduce((sum: number, adj: any) => {
+              if (adj.category?.text === 'deductible') {
+                console.log(`        + Adding deductible: $${adj.amount?.value || 0}`);
+                return sum + (adj.amount?.value || 0);
+              }
+              return sum;
+            }, 0) || 0;
+            
+            console.log(`      - Calculated amounts:`);
+            console.log(`        * Covered: $${coveredAmount}`);
+            console.log(`        * Patient responsibility: $${patientResponsibility}`);
+            console.log(`        * Copay: $${copayAmount}`);
+            console.log(`        * Deductible: $${deductibleAmount}`);
+            
+            fundingSummary.totalBilled += billedAmount;
+            fundingSummary.totalCovered += coveredAmount;
+            fundingSummary.totalPatientResponsibility += patientResponsibility;
+            fundingSummary.totalCopay += copayAmount;
+            fundingSummary.totalDeductible += deductibleAmount;
+          });
+        } else {
+          console.log(`    - No items found in EOB`);
+        }
+      });
+    } else {
+      console.log('⚠️  No EOBs found for this patient');
+    }
+    
+    fundingSummary.remainingBalance = fundingSummary.totalPatientResponsibility - fundingSummary.totalCopay - fundingSummary.totalDeductible;
+    
+    console.log('💰 Final funding summary:');
+    console.log('  - Total Billed: $', fundingSummary.totalBilled);
+    console.log('  - Total Covered: $', fundingSummary.totalCovered);
+    console.log('  - Patient Responsibility: $', fundingSummary.totalPatientResponsibility);
+    console.log('  - Copay: $', fundingSummary.totalCopay);
+    console.log('  - Deductible: $', fundingSummary.totalDeductible);
+    console.log('  - Remaining Balance: $', fundingSummary.remainingBalance);
+    console.log('  - Claim Count: ', fundingSummary.claimCount);
+    
+    return {
+      patient: patientDetails,
+      coverage: coverage,
+      eobs: eobs,
+      fundingSummary: fundingSummary
+    };
+  } catch (error) {
+    console.error('❌ Error in getPatientFundingSummary:', error);
+    throw error;
+  }
 }
 
