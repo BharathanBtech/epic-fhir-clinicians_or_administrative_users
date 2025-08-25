@@ -130,7 +130,7 @@ export async function getExplanationOfBenefits(token: string, patientId: string)
     return uniqueEntries.map((entry: any) => ({
     id: entry.resource.id || entry.resource.identifier?.[0]?.value || 'Unknown',
     status: entry.resource.status,
-    type: entry.resource.type?.text,
+    type: entry.resource.type,
     use: entry.resource.use,
     patient: entry.resource.patient?.display,
     billablePeriod: {
@@ -169,9 +169,9 @@ export async function getExplanationOfBenefits(token: string, patientId: string)
       diagnosisSequence: item.diagnosisSequence,
       procedureSequence: item.procedureSequence,
       informationSequence: item.informationSequence,
-      revenue: item.revenue?.text,
-      category: item.category?.text,
-      productOrService: item.productOrService?.text,
+      revenue: item.revenue,
+      category: item.category,
+      productOrService: item.productOrService,
       modifier: item.modifier?.map((m: any) => m.text),
       programCode: item.programCode?.map((p: any) => p.text),
       servicedDate: item.servicedDate,
@@ -257,8 +257,8 @@ export async function getExplanationOfBenefits(token: string, patientId: string)
       }))
     })),
     total: entry.resource.total?.map((total: any) => ({
-      category: total.category?.text,
-      amount: total.amount?.value,
+      category: total.category,
+      amount: total.amount,
       currency: total.amount?.currency
     })),
     payment: entry.resource.payment ? {

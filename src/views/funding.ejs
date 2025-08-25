@@ -633,12 +633,34 @@
             const detailsDiv = document.getElementById('eobDetails');
             console.log('Displaying EOB details:', eob);
             
+            // Helper function to safely extract text from FHIR objects
+            function getTextFromFHIR(obj) {
+                if (!obj) return 'N/A';
+                if (typeof obj === 'string') return obj;
+                if (obj.text) return obj.text;
+                if (obj.display) return obj.display;
+                if (obj.value) return obj.value;
+                if (obj.coding && obj.coding.length > 0) {
+                    return obj.coding[0].display || obj.coding[0].code || 'N/A';
+                }
+                return 'N/A';
+            }
+            
             // Debug: Log the total structure
             if (eob.total) {
                 console.log('EOB total structure:', eob.total);
                 eob.total.forEach((total, index) => {
                     console.log(`Total ${index}:`, total);
+                    console.log(`Total ${index} category:`, total.category);
+                    console.log(`Total ${index} amount:`, total.amount);
                 });
+            }
+            
+            // Debug: Log item structure
+            if (eob.item && eob.item.length > 0) {
+                console.log('EOB item structure:', eob.item[0]);
+                console.log('EOB item productOrService:', eob.item[0].productOrService);
+                console.log('EOB item category:', eob.item[0].category);
             }
             
             let html = `
@@ -655,7 +677,7 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Type</span>
-                            <span class="detail-value">${eob.type || 'N/A'}</span>
+                            <span class="detail-value">${getTextFromFHIR(eob.type)}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Created</span>
@@ -696,8 +718,8 @@
                     
                     html += `
                         <tr>
-                            <td>${item.productOrService || 'N/A'}</td>
-                            <td>${item.category || 'N/A'}</td>
+                            <td>${getTextFromFHIR(item.productOrService)}</td>
+                            <td>${getTextFromFHIR(item.category)}</td>
                             <td>${item.servicedDate || 'N/A'}</td>
                             <td>$${billedAmount.toFixed(2)}</td>
                             <td>$${coveredAmount.toFixed(2)}</td>
@@ -723,9 +745,10 @@
                 eob.total.forEach(total => {
                     const amount = total.amount?.value || total.amount || 0;
                     const formattedAmount = typeof amount === 'number' ? amount.toFixed(2) : '0.00';
+                    const categoryText = getTextFromFHIR(total.category);
                     html += `
                         <div class="detail-item">
-                            <span class="detail-label">${total.category}</span>
+                            <span class="detail-label">${categoryText}</span>
                             <span class="detail-value">$${formattedAmount}</span>
                         </div>
                     `;
