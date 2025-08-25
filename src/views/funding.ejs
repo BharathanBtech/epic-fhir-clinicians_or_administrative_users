@@ -507,10 +507,12 @@
                                     let totalAmount = 0;
                                     if (eob.total && eob.total.length > 0) {
                                         const benefitTotal = eob.total.find(t => t.category === 'benefit');
-                                        totalAmount = benefitTotal ? benefitTotal.amount : 0;
+                                        if (benefitTotal) {
+                                            totalAmount = benefitTotal.amount?.value || benefitTotal.amount || 0;
+                                        }
                                     }
                                     %>
-                                    $<%= totalAmount.toFixed(2) %>
+                                    $<%= typeof totalAmount === 'number' ? totalAmount.toFixed(2) : '0.00' %>
                                 </td>
                                 <td>
                                     <button class="view-eob-btn" onclick="viewEOB('<%= eob.id %>')">
@@ -547,17 +549,33 @@
             detailsDiv.innerHTML = '<div class="loading">Loading EOB details...</div>';
             
             fetch(`/funding/eob/${eobId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('EOB Data received:', data);
                     displayEOBDetails(data);
                 })
                 .catch(error => {
+                    console.error('Error loading EOB:', error);
                     detailsDiv.innerHTML = '<div class="error">Error loading EOB details: ' + error.message + '</div>';
                 });
         }
 
         function displayEOBDetails(eob) {
             const detailsDiv = document.getElementById('eobDetails');
+            console.log('Displaying EOB details:', eob);
+            
+            // Debug: Log the total structure
+            if (eob.total) {
+                console.log('EOB total structure:', eob.total);
+                eob.total.forEach((total, index) => {
+                    console.log(`Total ${index}:`, total);
+                });
+            }
             
             let html = `
                 <div class="eob-section-detail">
@@ -639,10 +657,12 @@
                 `;
                 
                 eob.total.forEach(total => {
+                    const amount = total.amount?.value || total.amount || 0;
+                    const formattedAmount = typeof amount === 'number' ? amount.toFixed(2) : '0.00';
                     html += `
                         <div class="detail-item">
                             <span class="detail-label">${total.category}</span>
-                            <span class="detail-value">$${total.amount?.toFixed(2) || '0.00'}</span>
+                            <span class="detail-value">$${formattedAmount}</span>
                         </div>
                     `;
                 });

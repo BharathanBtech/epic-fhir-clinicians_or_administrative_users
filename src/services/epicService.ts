@@ -112,7 +112,7 @@ export async function getExplanationOfBenefits(token: string, patientId: string)
     }
     
     return response.data.entry?.map((entry: any) => ({
-    id: entry.resource.id,
+    id: entry.resource.id || entry.resource.identifier?.[0]?.value || 'Unknown',
     status: entry.resource.status,
     type: entry.resource.type?.text,
     use: entry.resource.use,
