@@ -3,7 +3,13 @@ import { generateState } from '../utils/state.js';
 
 const router = Router();
 
+// Patient Search Landing Page
 router.get('/', (req, res) => {
+  res.render('patient-search');
+});
+
+// Initiate Epic Patient Search Launch
+router.get('/launch', (req, res) => {
   const state = generateState();
   const scope = encodeURIComponent('launch/patient openid fhirUser');
 
@@ -12,7 +18,7 @@ router.get('/', (req, res) => {
   )}&scope=${scope}&state=${state}&aud=${encodeURIComponent(process.env.FHIR_BASE!)}`;
 
   console.log('Generated state:', state);
-  console.log('Redirecting user to Epic authorization URL...');
+  console.log('Redirecting user to Epic patient search...');
   console.log('Authorization URL:', authRedirect);
 
   res.redirect(authRedirect);

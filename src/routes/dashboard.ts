@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPatientSummary } from '../services/epicService';
+import { getPatientSummary } from '../services/epicService.js';
 
 const router = Router();
 

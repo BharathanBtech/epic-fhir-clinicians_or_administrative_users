@@ -5,11 +5,13 @@ import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import launchRouter from './routes/launch';
-import callbackRouter from './routes/callback';
-import patientRouter from './routes/patient';
-import summaryRoute from './routes/summary';
-import dashboardRouter from './routes/dashboard';
+import launchRouter from './routes/launch.js';
+import callbackRouter from './routes/callback.js';
+import patientRouter from './routes/patient.js';
+import summaryRoute from './routes/summary.js';
+import dashboardRouter from './routes/dashboard.js';
+import fundingRouter from './routes/funding.js';
+import patientSearchRouter from './routes/patient-search.js';
 
 dotenv.config();
 
@@ -35,9 +37,11 @@ app.use('/callback', callbackRouter);
 app.use('/patient', patientRouter);
 app.use('/summary', summaryRoute);
 app.use('/dashboard', dashboardRouter);
+app.use('/funding', fundingRouter);
+app.use('/patient-search', patientSearchRouter);
 
 app.get('/', (req, res) => {
-  res.send('Welcome to Epic FHIR Integration!');
+  res.redirect('/patient-search');
 });
 
 const PORT = process.env.PORT || 4000;

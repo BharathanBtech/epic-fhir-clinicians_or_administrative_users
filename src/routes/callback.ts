@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { exchangeCodeForToken } from '../services/epicService';
+import { exchangeCodeForToken } from '../services/epicService.js';
 
 const router = Router();
 
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
     (req as any).session.token = tokenData; // If using express-session
     (req as any).session.patientId = tokenData.patient
 
-    res.redirect('/dashboard'); // Or wherever you want the user to go
+    res.redirect('/funding'); // Redirect to funding application after patient selection
   } catch (err: any) {
     console.error('Token exchange failed:', err.response?.data || err.message);
     res.status(500).json(err.response?.data || { error: err.message });

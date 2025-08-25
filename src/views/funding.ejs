@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Funding Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e1e8ed;
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .patient-info {
+            grid-column: 1 / -1;
+        }
+
+        .patient-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .funding-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .funding-summary h2 {
+            color: white;
+            border-bottom-color: rgba(255,255,255,0.3);
+        }
+
+        .funding-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .funding-item {
+            text-align: center;
+        }
+
+        .funding-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .funding-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .insurance-section {
+            grid-column: 1 / -1;
+        }
+
+        .insurance-list {
+            list-style: none;
+        }
+
+        .insurance-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .insurance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .insurance-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .insurance-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .eob-section {
+            grid-column: 1 / -1;
+        }
+
+        .eob-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .eob-table th,
+        .eob-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .eob-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .eob-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .view-eob-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .view-eob-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .eob-details {
+            margin-top: 1rem;
+        }
+
+        .eob-section-detail {
+            margin-bottom: 2rem;
+        }
+
+        .eob-section-detail h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e1e8ed;
+            padding-bottom: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .funding-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 Patient Funding Dashboard</h1>
+        <p>Real-time patient funding and payment information</p>
+    </div>
+
+    <div class="container">
+        <!-- Patient Information -->
+        <div class="card patient-info">
+            <h2>👤 Patient Information</h2>
+            <div class="patient-details">
+                <div class="detail-item">
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value"><%= fundingData.patient.name %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">MRN</span>
+                    <span class="detail-value"><%= fundingData.patient.mrn || 'N/A' %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Date of Birth</span>
+                    <span class="detail-value"><%= fundingData.patient.birthDate || 'N/A' %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Gender</span>
+                    <span class="detail-value"><%= fundingData.patient.gender || 'N/A' %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value"><%= fundingData.patient.phone || 'N/A' %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value"><%= fundingData.patient.email || 'N/A' %></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Funding Summary -->
+        <div class="card funding-summary">
+            <h2>💳 Funding Summary</h2>
+            <div class="funding-grid">
+                <div class="funding-item">
+                    <div class="funding-amount">$<%= fundingData.fundingSummary.totalBilled.toFixed(2) %></div>
+                    <div class="funding-label">Total Billed</div>
+                </div>
+                <div class="funding-item">
+                    <div class="funding-amount">$<%= fundingData.fundingSummary.totalCovered.toFixed(2) %></div>
+                    <div class="funding-label">Insurance Covered</div>
+                </div>
+                <div class="funding-item">
+                    <div class="funding-amount">$<%= fundingData.fundingSummary.totalPatientResponsibility.toFixed(2) %></div>
+                    <div class="funding-label">Patient Responsibility</div>
+                </div>
+                <div class="funding-item">
+                    <div class="funding-amount">$<%= fundingData.fundingSummary.totalCopay.toFixed(2) %></div>
+                    <div class="funding-label">Copay</div>
+                </div>
+                <div class="funding-item">
+                    <div class="funding-amount">$<%= fundingData.fundingSummary.totalDeductible.toFixed(2) %></div>
+                    <div class="funding-label">Deductible</div>
+                </div>
+                <div class="funding-item">
+                    <div class="funding-amount">$<%= fundingData.fundingSummary.remainingBalance.toFixed(2) %></div>
+                    <div class="funding-label">Remaining Balance</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insurance Information -->
+        <div class="card insurance-section">
+            <h2>🏥 Insurance Coverage</h2>
+            <% if (fundingData.coverage && fundingData.coverage.length > 0) { %>
+                <ul class="insurance-list">
+                    <% fundingData.coverage.forEach(function(coverage) { %>
+                        <li class="insurance-item">
+                            <div class="insurance-header">
+                                <span class="insurance-name"><%= coverage.type || 'Insurance Coverage' %></span>
+                                <span class="insurance-status <%= coverage.status === 'active' ? 'status-active' : 'status-inactive' %>">
+                                    <%= coverage.status || 'Unknown' %>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Subscriber</span>
+                                <span class="detail-value"><%= coverage.subscriber || 'N/A' %></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Payor</span>
+                                <span class="detail-value"><%= coverage.payor ? coverage.payor.join(', ') : 'N/A' %></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Period</span>
+                                <span class="detail-value">
+                                    <%= coverage.period?.start || 'N/A' %> - <%= coverage.period?.end || 'Ongoing' %>
+                                </span>
+                            </div>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No insurance coverage information available.</p>
+            <% } %>
+        </div>
+
+        <!-- Explanation of Benefits -->
+        <div class="card eob-section">
+            <h2>📋 Explanation of Benefits (EOB)</h2>
+            <% if (fundingData.eobs && fundingData.eobs.length > 0) { %>
+                <table class="eob-table">
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Status</th>
+                            <th>Type</th>
+                            <th>Service Date</th>
+                            <th>Provider</th>
+                            <th>Total Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% fundingData.eobs.forEach(function(eob) { %>
+                            <tr>
+                                <td><%= eob.id %></td>
+                                <td><%= eob.status %></td>
+                                <td><%= eob.type || 'N/A' %></td>
+                                <td><%= eob.billablePeriod?.start || 'N/A' %></td>
+                                <td><%= eob.provider || 'N/A' %></td>
+                                <td>
+                                    <% 
+                                    let totalAmount = 0;
+                                    if (eob.total && eob.total.length > 0) {
+                                        const benefitTotal = eob.total.find(t => t.category === 'benefit');
+                                        totalAmount = benefitTotal ? benefitTotal.amount : 0;
+                                    }
+                                    %>
+                                    $<%= totalAmount.toFixed(2) %>
+                                </td>
+                                <td>
+                                    <button class="view-eob-btn" onclick="viewEOB('<%= eob.id %>')">
+                                        View EOB
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <p>No Explanation of Benefits available.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- EOB Modal -->
+    <div id="eobModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Explanation of Benefits Details</h2>
+            <div id="eobDetails" class="eob-details">
+                <div class="loading">Loading EOB details...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function viewEOB(eobId) {
+            const modal = document.getElementById('eobModal');
+            const detailsDiv = document.getElementById('eobDetails');
+            
+            modal.style.display = 'block';
+            detailsDiv.innerHTML = '<div class="loading">Loading EOB details...</div>';
+            
+            fetch(`/funding/eob/${eobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayEOBDetails(data);
+                })
+                .catch(error => {
+                    detailsDiv.innerHTML = '<div class="error">Error loading EOB details: ' + error.message + '</div>';
+                });
+        }
+
+        function displayEOBDetails(eob) {
+            const detailsDiv = document.getElementById('eobDetails');
+            
+            let html = `
+                <div class="eob-section-detail">
+                    <h3>Claim Information</h3>
+                    <div class="patient-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Claim ID</span>
+                            <span class="detail-value">${eob.id}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">${eob.status}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value">${eob.type || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Created</span>
+                            <span class="detail-value">${eob.created || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (eob.item && eob.item.length > 0) {
+                html += `
+                    <div class="eob-section-detail">
+                        <h3>Service Items</h3>
+                        <table class="eob-table">
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Billed</th>
+                                    <th>Covered</th>
+                                    <th>Patient Responsibility</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                eob.item.forEach(item => {
+                    const billedAmount = item.net?.value || 0;
+                    const coveredAmount = item.adjudication?.reduce((sum, adj) => {
+                        if (adj.category === 'benefit') return sum + (adj.amount?.value || 0);
+                        return sum;
+                    }, 0) || 0;
+                    const patientResponsibility = item.adjudication?.reduce((sum, adj) => {
+                        if (adj.category === 'patient') return sum + (adj.amount?.value || 0);
+                        return sum;
+                    }, 0) || 0;
+                    
+                    html += `
+                        <tr>
+                            <td>${item.productOrService || 'N/A'}</td>
+                            <td>${item.category || 'N/A'}</td>
+                            <td>${item.servicedDate || 'N/A'}</td>
+                            <td>$${billedAmount.toFixed(2)}</td>
+                            <td>$${coveredAmount.toFixed(2)}</td>
+                            <td>$${patientResponsibility.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            if (eob.total && eob.total.length > 0) {
+                html += `
+                    <div class="eob-section-detail">
+                        <h3>Financial Summary</h3>
+                        <div class="patient-details">
+                `;
+                
+                eob.total.forEach(total => {
+                    html += `
+                        <div class="detail-item">
+                            <span class="detail-label">${total.category}</span>
+                            <span class="detail-value">$${total.amount?.toFixed(2) || '0.00'}</span>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            detailsDiv.innerHTML = html;
+        }
+
+        function closeModal() {
+            document.getElementById('eobModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('eobModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
