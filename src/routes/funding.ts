@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getPatientFundingSummary, getSpecificEOB, getPatientCoverage, getExplanationOfBenefits } from '../services/epicService.js';
+import { getConfig } from '../config/index.js';
 
 const router = Router();
 
@@ -18,7 +19,8 @@ router.get('/', async (req, res) => {
 
   try {
     const fundingData = await getPatientFundingSummary(tokenData.access_token, patientId);
-    res.render('funding', { fundingData });
+    const config = getConfig();
+    res.render('funding', { fundingData, config });
   } catch (err: any) {
     console.error('Failed to fetch patient funding data:', err.message);
     res.status(500).send('Error fetching patient funding data.');
@@ -94,6 +96,26 @@ router.get('/api/eob', async (req, res) => {
   } catch (err: any) {
     console.error('Failed to fetch EOB data:', err.message);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// New Dashboard with Sidebar Navigation
+router.get('/dashboard', async (req, res) => {
+  const tokenData = (req as any).session?.token;
+  const patientId = (req as any).session?.patientId;
+  
+  if (!tokenData || !patientId) {
+    res.status(401).send('Authentication required. Please login first.');
+    return;
+  }
+  
+  try {
+    const fundingData = await getPatientFundingSummary(tokenData.access_token, patientId);
+    const config = getConfig();
+    res.render('funding-dashboard', { fundingData, config });
+  } catch (err: any) {
+    console.error('Failed to fetch patient funding data:', err.message);
+    res.status(500).send('Error fetching patient funding data.');
   }
 });
 

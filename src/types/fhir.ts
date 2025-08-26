@@ -130,9 +130,30 @@ export interface PatientDetails {
   family?: string;
   gender?: string;
   birthDate?: string;
-  address?: any;
+  maritalStatus?: string;
+  address?: {
+    line?: string[];
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
   phone?: string;
   email?: string;
+  language?: string;
+  ethnicity?: string;
+  race?: string;
+  deceased?: boolean;
+  deceasedDate?: string;
+  multipleBirth?: boolean;
+  multipleBirthCount?: number;
+  photo?: string;
+  contact?: Array<{
+    relationship?: string;
+    name?: string;
+    phone?: string;
+    email?: string;
+  }>;
 }
 
 export interface CoverageDetails {

@@ -22,6 +22,24 @@ export interface AppConfig {
   // Feature Flags
   enableDebugLogging: boolean;
   enableDetailedErrorMessages: boolean;
+  
+  // Menu Feature Flags
+  showPatient: boolean;
+  showFundingSummary: boolean;
+  showInsuranceCoverage: boolean;
+  showExplanationOfBenefits: boolean;
+  showOrganization: boolean;
+  showPractitioner: boolean;
+  showEncounter: boolean;
+  showClaims: boolean;
+  showInvoices: boolean;
+  showAccounts: boolean;
+  showPaymentReconciliation: boolean;
+  showPaymentNotices: boolean;
+  showChargeItems: boolean;
+  showProcedures: boolean;
+  showDiagnosticReports: boolean;
+  showObservations: boolean;
 }
 
 /**
@@ -46,7 +64,25 @@ export function loadConfig(): AppConfig {
     
     // Feature Flags
     enableDebugLogging: process.env.NODE_ENV === 'development',
-    enableDetailedErrorMessages: process.env.NODE_ENV === 'development'
+    enableDetailedErrorMessages: process.env.NODE_ENV === 'development',
+    
+    // Menu Feature Flags
+    showPatient: process.env.SHOW_PATIENT === 'true',
+    showFundingSummary: process.env.SHOW_FUNDING_SUMMARY === 'true',
+    showInsuranceCoverage: process.env.SHOW_INSURANCE_COVERAGE === 'true',
+    showExplanationOfBenefits: process.env.SHOW_EXPLANATION_OF_BENEFITS === 'true',
+    showOrganization: process.env.SHOW_ORGANIZATION === 'true',
+    showPractitioner: process.env.SHOW_PRACTITIONER === 'true',
+    showEncounter: process.env.SHOW_ENCOUNTER === 'true',
+    showClaims: process.env.SHOW_CLAIMS === 'true',
+    showInvoices: process.env.SHOW_INVOICES === 'true',
+    showAccounts: process.env.SHOW_ACCOUNTS === 'true',
+    showPaymentReconciliation: process.env.SHOW_PAYMENT_RECONCILIATION === 'true',
+    showPaymentNotices: process.env.SHOW_PAYMENT_NOTICES === 'true',
+    showChargeItems: process.env.SHOW_CHARGE_ITEMS === 'true',
+    showProcedures: process.env.SHOW_PROCEDURES === 'true',
+    showDiagnosticReports: process.env.SHOW_DIAGNOSTIC_REPORTS === 'true',
+    showObservations: process.env.SHOW_OBSERVATIONS === 'true'
   };
   
   // Only validate required configuration in production

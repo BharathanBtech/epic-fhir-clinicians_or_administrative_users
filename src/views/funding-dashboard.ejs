@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Funding Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            font-size: 2rem;
+            color: #ffd700;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .search-new-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .search-new-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 100px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            color: #666;
+        }
+
+        .menu-item:hover {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+
+        .menu-item.active {
+            background: #e8f2ff;
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        .menu-item.hidden {
+            display: none;
+        }
+
+        .menu-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+        }
+
+        .patient-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .patient-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .patient-details {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .detail-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-section h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Emergency Contacts */
+        .contact-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .contact-header {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .contact-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contact-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .contact-value {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        /* Funding Summary Cards */
+        .funding-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .funding-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .funding-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .funding-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .view-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .main-content {
+                order: 1;
+            }
+            
+            .funding-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="header-icon">💰</div>
+            <div class="header-title">
+                <h1>Patient Funding Dashboard</h1>
+                <p>Real-time patient funding and payment information</p>
+            </div>
+        </div>
+        <a href="/patient-search" class="search-new-btn">
+            🔍 Search New Patient
+        </a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="menu-item active" onclick="showSection('patient')">
+                <span class="menu-icon">👤</span>
+                <span>Patient Information</span>
+            </div>
+            
+            <% if (config.showFundingSummary) { %>
+            <div class="menu-item" onclick="showSection('funding')">
+                <span class="menu-icon">💰</span>
+                <span>Funding Summary</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showInsuranceCoverage) { %>
+            <div class="menu-item" onclick="showSection('insurance')">
+                <span class="menu-icon">🏥</span>
+                <span>Insurance Coverage</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showExplanationOfBenefits) { %>
+            <div class="menu-item" onclick="showSection('eob')">
+                <span class="menu-icon">📋</span>
+                <span>Explanation of Benefits</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showOrganization) { %>
+            <div class="menu-item" onclick="showSection('organization')">
+                <span class="menu-icon">🏢</span>
+                <span>Organization</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showPractitioner) { %>
+            <div class="menu-item" onclick="showSection('practitioner')">
+                <span class="menu-icon">👨‍⚕️</span>
+                <span>Practitioner</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showEncounter) { %>
+            <div class="menu-item" onclick="showSection('encounter')">
+                <span class="menu-icon">🏥</span>
+                <span>Encounter</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showClaims) { %>
+            <div class="menu-item" onclick="showSection('claims')">
+                <span class="menu-icon">📄</span>
+                <span>Claims</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showInvoices) { %>
+            <div class="menu-item" onclick="showSection('invoices')">
+                <span class="menu-icon">🧾</span>
+                <span>Invoices</span>
+            </div>
+            <% } %>
+            
+            <% if (config.showAccounts) { %>
+            <div class="menu-item" onclick="showSection('accounts')">
+                <span class="menu-icon">💳</span>
+                <span>Accounts</span>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Patient Information Section -->
+            <div id="patient-section" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>👤</span>
+                        <span>Patient Information</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="patient-info">
+                        <div class="patient-name">Currently viewing: <%= fundingData.patient.name %></div>
+                        <div class="patient-details">
+                            <!-- Basic Information -->
+                            <div class="detail-section">
+                                <h4>Basic Information</h4>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Name</div>
+                                        <div class="detail-value"><%= fundingData.patient.name %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">MRN</div>
+                                        <div class="detail-value"><%= fundingData.patient.mrn || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Date of Birth</div>
+                                        <div class="detail-value"><%= fundingData.patient.birthDate || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Gender</div>
+                                        <div class="detail-value"><%= fundingData.patient.gender || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Marital Status</div>
+                                        <div class="detail-value"><%= fundingData.patient.maritalStatus || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Language</div>
+                                        <div class="detail-value"><%= fundingData.patient.language || 'N/A' %></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="detail-section">
+                                <h4>Contact Information</h4>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Phone</div>
+                                        <div class="detail-value"><%= fundingData.patient.phone || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Email</div>
+                                        <div class="detail-value"><%= fundingData.patient.email || 'N/A' %></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address Information -->
+                            <% if (fundingData.patient.address) { %>
+                            <div class="detail-section">
+                                <h4>Address</h4>
+                                <div class="detail-grid">
+                                    <% if (fundingData.patient.address.line && fundingData.patient.address.line.length > 0) { %>
+                                    <div class="detail-item full-width">
+                                        <div class="detail-label">Street Address</div>
+                                        <div class="detail-value"><%= fundingData.patient.address.line.join(', ') %></div>
+                                    </div>
+                                    <% } %>
+                                    <div class="detail-item">
+                                        <div class="detail-label">City</div>
+                                        <div class="detail-value"><%= fundingData.patient.address.city || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">State</div>
+                                        <div class="detail-value"><%= fundingData.patient.address.state || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Postal Code</div>
+                                        <div class="detail-value"><%= fundingData.patient.address.postalCode || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Country</div>
+                                        <div class="detail-value"><%= fundingData.patient.address.country || 'N/A' %></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <% } %>
+
+                            <!-- Demographics -->
+                            <div class="detail-section">
+                                <h4>Demographics</h4>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Ethnicity</div>
+                                        <div class="detail-value"><%= fundingData.patient.ethnicity || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Race</div>
+                                        <div class="detail-value"><%= fundingData.patient.race || 'N/A' %></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Multiple Birth</div>
+                                        <div class="detail-value">
+                                            <%= fundingData.patient.multipleBirth ? 'Yes' : 'No' %>
+                                            <% if (fundingData.patient.multipleBirth && fundingData.patient.multipleBirthCount) { %>
+                                                (Count: <%= fundingData.patient.multipleBirthCount %>)
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Deceased</div>
+                                        <div class="detail-value">
+                                            <%= fundingData.patient.deceased ? 'Yes' : 'No' %>
+                                            <% if (fundingData.patient.deceased && fundingData.patient.deceasedDate) { %>
+                                                (<%= fundingData.patient.deceasedDate %>)
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Emergency Contacts -->
+                            <% if (fundingData.patient.contact && fundingData.patient.contact.length > 0) { %>
+                            <div class="detail-section">
+                                <h4>Emergency Contacts</h4>
+                                <% fundingData.patient.contact.forEach(function(contact, index) { %>
+                                <div class="contact-card">
+                                    <div class="contact-header">
+                                        <strong><%= contact.relationship || 'Contact' %> <%= index + 1 %></strong>
+                                    </div>
+                                    <div class="contact-details">
+                                        <div class="contact-item">
+                                            <span class="contact-label">Name:</span>
+                                            <span class="contact-value"><%= contact.name || 'N/A' %></span>
+                                        </div>
+                                        <div class="contact-item">
+                                            <span class="contact-label">Phone:</span>
+                                            <span class="contact-value"><%= contact.phone || 'N/A' %></span>
+                                        </div>
+                                        <div class="contact-item">
+                                            <span class="contact-label">Email:</span>
+                                            <span class="contact-value"><%= contact.email || 'N/A' %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }); %>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Funding Summary Section -->
+            <% if (config.showFundingSummary) { %>
+            <div id="funding-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>💰</span>
+                        <span>Funding Summary</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="funding-grid">
+                        <div class="funding-card">
+                            <div class="funding-amount">$<%= fundingData.fundingSummary.totalBilled.toFixed(2) %></div>
+                            <div class="funding-label">Total Billed</div>
+                        </div>
+                        <div class="funding-card">
+                            <div class="funding-amount">$<%= fundingData.fundingSummary.totalCovered.toFixed(2) %></div>
+                            <div class="funding-label">Insurance Covered</div>
+                        </div>
+                        <div class="funding-card">
+                            <div class="funding-amount">$<%= fundingData.fundingSummary.totalPatientResponsibility.toFixed(2) %></div>
+                            <div class="funding-label">Patient Responsibility</div>
+                        </div>
+                        <div class="funding-card">
+                            <div class="funding-amount">$<%= fundingData.fundingSummary.totalCopay.toFixed(2) %></div>
+                            <div class="funding-label">Copay</div>
+                        </div>
+                        <div class="funding-card">
+                            <div class="funding-amount">$<%= fundingData.fundingSummary.totalDeductible.toFixed(2) %></div>
+                            <div class="funding-label">Deductible</div>
+                        </div>
+                        <div class="funding-card">
+                            <div class="funding-amount">$<%= fundingData.fundingSummary.remainingBalance.toFixed(2) %></div>
+                            <div class="funding-label">Remaining Balance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Insurance Coverage Section -->
+            <% if (config.showInsuranceCoverage) { %>
+            <div id="insurance-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>🏥</span>
+                        <span>Insurance Coverage</span>
+                    </div>
+                    <button class="refresh-btn" onclick="refreshInsurance()">🔄</button>
+                </div>
+                <div class="section-content">
+                    <div id="insurance-content">
+                        <% if (fundingData.coverage && fundingData.coverage.length > 0) { %>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Subscriber</th>
+                                        <th>Beneficiary</th>
+                                        <th>Period</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% fundingData.coverage.forEach(function(coverage) { %>
+                                    <tr>
+                                        <td><%= coverage.type %></td>
+                                        <td><%= coverage.status %></td>
+                                        <td><%= coverage.subscriber %></td>
+                                        <td><%= coverage.beneficiary %></td>
+                                        <td><%= coverage.period.start %> - <%= coverage.period.end || 'Active' %></td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <p>No insurance coverage information available.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Explanation of Benefits Section -->
+            <% if (config.showExplanationOfBenefits) { %>
+            <div id="eob-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>📋</span>
+                        <span>Explanation of Benefits (EOB)</span>
+                    </div>
+                    <button class="refresh-btn" onclick="refreshEOB()">🔄</button>
+                </div>
+                <div class="section-content">
+                    <div id="eob-content">
+                        <% if (fundingData.eobs && fundingData.eobs.length > 0) { %>
+                            <p>Found <%= fundingData.eobs.length %> Explanation of Benefit(s)</p>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Claim ID</th>
+                                        <th>Status</th>
+                                        <th>Type</th>
+                                        <th>Service Date</th>
+                                        <th>Provider</th>
+                                        <th>Total Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% fundingData.eobs.forEach(function(eob) { %>
+                                    <tr>
+                                        <td><%= eob.id %></td>
+                                        <td><%= eob.status %></td>
+                                        <td><%= eob.type?.coding?.[0]?.display || eob.type?.text || eob.type || 'N/A' %></td>
+                                        <td><%= eob.billablePeriod?.start || 'N/A' %></td>
+                                        <td><%= eob.provider || 'N/A' %></td>
+                                        <td>
+                                            <% 
+                                            let totalAmount = 0;
+                                            if (eob.total && eob.total.length > 0) {
+                                                const benefitTotal = eob.total.find(t => 
+                                                    t.category?.text === 'benefit' || 
+                                                    (typeof t.category === 'string' && t.category.toLowerCase().includes('benefit'))
+                                                );
+                                                if (benefitTotal) {
+                                                    totalAmount = benefitTotal.amount?.value || benefitTotal.amount || 0;
+                                                } else {
+                                                    totalAmount = eob.total.reduce((sum, t) => {
+                                                        const amount = t.amount?.value || t.amount || 0;
+                                                        return sum + amount;
+                                                    }, 0);
+                                                }
+                                            }
+                                            %>
+                                            $<%= typeof totalAmount === 'number' ? totalAmount.toFixed(2) : '0.00' %>
+                                        </td>
+                                        <td>
+                                            <button class="view-btn" onclick="viewEOB('<%= eob.id %>')">
+                                                View EOB
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <p>No Explanation of Benefits available.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Placeholder sections for future APIs -->
+            <% if (config.showOrganization) { %>
+            <div id="organization-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>🏢</span>
+                        <span>Organization</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <p>Organization information will be implemented in Phase 2.</p>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (config.showPractitioner) { %>
+            <div id="practitioner-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>👨‍⚕️</span>
+                        <span>Practitioner</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <p>Practitioner information will be implemented in Phase 2.</p>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (config.showEncounter) { %>
+            <div id="encounter-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>🏥</span>
+                        <span>Encounter</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <p>Encounter information will be implemented in Phase 2.</p>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (config.showClaims) { %>
+            <div id="claims-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>📄</span>
+                        <span>Claims</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <p>Claims information will be implemented in Phase 1.</p>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (config.showInvoices) { %>
+            <div id="invoices-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>🧾</span>
+                        <span>Invoices</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <p>Invoice information will be implemented in Phase 1.</p>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (config.showAccounts) { %>
+            <div id="accounts-section" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>💳</span>
+                        <span>Accounts</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <p>Account information will be implemented in Phase 1.</p>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Enhanced EOB Modal -->
+    <div id="eobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="icon">📋</span>
+                    <span>Explanation of Benefits</span>
+                </div>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="eobDetails" class="eob-details">
+                    <div class="loading">Loading EOB details...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration object for feature flags
+        const config = <%- JSON.stringify(config) %>;
+        
+        // Show section function
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            const selectedSection = document.getElementById(sectionName + '-section');
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+            }
+            
+            // Update menu active state
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the clicked menu item
+            const clickedItem = event.currentTarget;
+            clickedItem.classList.add('active');
+        }
+
+        // Refresh functions
+        function refreshInsurance() {
+            const content = document.getElementById('insurance-content');
+            content.innerHTML = '<div class="loading">Refreshing insurance data...</div>';
+            
+            fetch('/funding/api/insurance')
+                .then(response => response.json())
+                .then(data => {
+                    // Update insurance content
+                    if (data.coverage && data.coverage.length > 0) {
+                        let html = '<table class="data-table"><thead><tr><th>Type</th><th>Status</th><th>Subscriber</th><th>Beneficiary</th><th>Period</th></tr></thead><tbody>';
+                        data.coverage.forEach(coverage => {
+                            html += `<tr><td>${coverage.type}</td><td>${coverage.status}</td><td>${coverage.subscriber}</td><td>${coverage.beneficiary}</td><td>${coverage.period.start} - ${coverage.period.end || 'Active'}</td></tr>`;
+                        });
+                        html += '</tbody></table>';
+                        content.innerHTML = html;
+                    } else {
+                        content.innerHTML = '<p>No insurance coverage information available.</p>';
+                    }
+                })
+                .catch(error => {
+                    content.innerHTML = '<div class="error">Error refreshing insurance data: ' + error.message + '</div>';
+                });
+        }
+
+        function refreshEOB() {
+            const content = document.getElementById('eob-content');
+            content.innerHTML = '<div class="loading">Refreshing EOB data...</div>';
+            
+            fetch('/funding/api/eob')
+                .then(response => response.json())
+                .then(data => {
+                    // Update EOB content
+                    if (data.eobs && data.eobs.length > 0) {
+                        let html = `<p>Found ${data.eobs.length} Explanation of Benefit(s)</p><table class="data-table"><thead><tr><th>Claim ID</th><th>Status</th><th>Type</th><th>Service Date</th><th>Provider</th><th>Total Amount</th><th>Action</th></tr></thead><tbody>`;
+                        data.eobs.forEach(eob => {
+                            let totalAmount = 0;
+                            if (eob.total && eob.total.length > 0) {
+                                const benefitTotal = eob.total.find(t => 
+                                    t.category?.text === 'benefit' || 
+                                    (typeof t.category === 'string' && t.category.toLowerCase().includes('benefit'))
+                                );
+                                if (benefitTotal) {
+                                    totalAmount = benefitTotal.amount?.value || benefitTotal.amount || 0;
+                                } else {
+                                    totalAmount = eob.total.reduce((sum, t) => {
+                                        const amount = t.amount?.value || t.amount || 0;
+                                        return sum + amount;
+                                    }, 0);
+                                }
+                            }
+                            html += `<tr><td>${eob.id}</td><td>${eob.status}</td><td>${eob.type?.coding?.[0]?.display || eob.type?.text || eob.type || 'N/A'}</td><td>${eob.billablePeriod?.start || 'N/A'}</td><td>${eob.provider || 'N/A'}</td><td>$${typeof totalAmount === 'number' ? totalAmount.toFixed(2) : '0.00'}</td><td><button class="view-btn" onclick="viewEOB('${eob.id}')">View EOB</button></td></tr>`;
+                        });
+                        html += '</tbody></table>';
+                        content.innerHTML = html;
+                    } else {
+                        content.innerHTML = '<p>No Explanation of Benefits available.</p>';
+                    }
+                })
+                .catch(error => {
+                    content.innerHTML = '<div class="error">Error refreshing EOB data: ' + error.message + '</div>';
+                });
+        }
+
+        // EOB Modal functions (from original funding.ejs)
+        function viewEOB(eobId) {
+            const modal = document.getElementById('eobModal');
+            const detailsDiv = document.getElementById('eobDetails');
+            
+            modal.style.display = 'block';
+            detailsDiv.innerHTML = '<div class="loading">Loading EOB details...</div>';
+            
+            fetch(`/funding/eob/${eobId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('EOB Data received:', data);
+                    currentEOB = data; // Set current EOB for download function
+                    displayEOBDetails(data);
+                })
+                .catch(error => {
+                    console.error('Error loading EOB:', error);
+                    detailsDiv.innerHTML = '<div class="error">Error loading EOB details: ' + error.message + '</div>';
+                });
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('eobModal');
+            modal.style.display = 'none';
+        }
+
+        function displayEOBDetails(eob) {
+            const detailsDiv = document.getElementById('eobDetails');
+            console.log('Displaying EOB details:', eob);
+            console.log('EOB items:', eob.item);
+            if (eob.item && eob.item.length > 0) {
+                console.log('First item details:', eob.item[0]);
+                console.log('First item adjudication:', eob.item[0].adjudication);
+            }
+            
+            try {
+            
+            // Helper function to safely extract text from FHIR objects
+            function getTextFromFHIR(obj) {
+                if (!obj) return 'N/A';
+                if (typeof obj === 'string') return obj;
+                if (obj.text) return obj.text;
+                if (obj.display) return obj.display;
+                if (obj.value) return obj.value;
+                if (obj.coding && obj.coding.length > 0) {
+                    return obj.coding[0].display || obj.coding[0].code || 'N/A';
+                }
+                return 'N/A';
+            }
+            
+            // Calculate totals
+            let totalBilled = 0;
+            let totalCovered = 0;
+            let totalPatientResponsibility = 0;
+            let totalCopay = 0;
+            
+            // Check if there's a total field at the EOB level
+            if (eob.total && eob.total.length > 0) {
+                console.log('EOB totals:', eob.total);
+                eob.total.forEach(total => {
+                    const category = getTextFromFHIR(total.category);
+                    const amount = parseFloat(total.amount?.value || total.amount || 0) || 0;
+                    console.log(`Total category: ${category}, amount: ${amount}`);
+                    
+                    if (category.toLowerCase().includes('submitted') || category.toLowerCase().includes('billed')) {
+                        totalBilled = amount;
+                    }
+                });
+            }
+            
+            if (eob.item && eob.item.length > 0) {
+                eob.item.forEach(item => {
+                    // Try different fields for billed amount in order of preference
+                    // In FHIR EOB, the billed amount is typically in item.adjudication with category "submitted"
+                    let billedAmount = 0;
+                    
+                    if (item.adjudication && item.adjudication.length > 0) {
+                        const submittedAdj = item.adjudication.find(adj => {
+                            const category = getTextFromFHIR(adj.category);
+                            return category.toLowerCase().includes('submitted') || category.toLowerCase().includes('billed');
+                        });
+                        if (submittedAdj) {
+                            billedAmount = parseFloat(submittedAdj.amount?.value || submittedAdj.amount || 0) || 0;
+                        }
+                    }
+                    
+                    // Fallback to other fields if no submitted adjudication found
+                    if (billedAmount === 0) {
+                        billedAmount = parseFloat(item.net || item.unitPrice?.value || item.factor || 0) || 0;
+                    }
+                    
+                    totalBilled += billedAmount;
+                    
+                    if (item.adjudication && item.adjudication.length > 0) {
+                        const coveredAmount = item.adjudication.reduce((sum, adj) => {
+                            const categoryText = getTextFromFHIR(adj.category);
+                            if (categoryText.toLowerCase().includes('benefit')) {
+                                return sum + (parseFloat(adj.amount?.value || adj.amount || 0) || 0);
+                            }
+                            return sum;
+                        }, 0);
+                        
+                        const patientResponsibility = item.adjudication.reduce((sum, adj) => {
+                            const categoryText = getTextFromFHIR(adj.category);
+                            if (categoryText.toLowerCase().includes('patient') || 
+                                categoryText.toLowerCase().includes('responsibility') ||
+                                categoryText.toLowerCase().includes('deductible')) {
+                                return sum + (parseFloat(adj.amount?.value || adj.amount || 0) || 0);
+                            }
+                            return sum;
+                        }, 0);
+                        
+                        const copayAmount = item.adjudication.reduce((sum, adj) => {
+                            const categoryText = getTextFromFHIR(adj.category);
+                            if (categoryText.toLowerCase().includes('copay')) {
+                                return sum + (parseFloat(adj.amount?.value || adj.amount || 0) || 0);
+                            }
+                            return sum;
+                        }, 0);
+                        
+                        totalCovered += coveredAmount;
+                        totalPatientResponsibility += patientResponsibility;
+                        totalCopay += copayAmount;
+                    }
+                });
+            }
+            
+            // Fallback calculation
+            if (totalPatientResponsibility === 0 && totalBilled > 0) {
+                totalPatientResponsibility = totalBilled - totalCovered;
+            }
+            
+            const html = `
+                <!-- EOB Summary Section -->
+                <div class="eob-summary">
+                    <div class="eob-summary-grid">
+                        <div class="eob-summary-item">
+                            <div class="eob-summary-label">Claim ID</div>
+                            <div class="eob-summary-value">${eob.id || 'N/A'}</div>
+                        </div>
+                        <div class="eob-summary-item">
+                            <div class="eob-summary-label">Status</div>
+                            <div class="eob-summary-value">
+                                <span class="status-badge status-${eob.status || 'unknown'}">${eob.status || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="eob-summary-item">
+                            <div class="eob-summary-label">Type</div>
+                            <div class="eob-summary-value">${eob.type?.coding?.[0]?.display || getTextFromFHIR(eob.type)}</div>
+                        </div>
+                        <div class="eob-summary-item">
+                            <div class="eob-summary-label">Created</div>
+                            <div class="eob-summary-value">${eob.created || 'N/A'}</div>
+                        </div>
+                        <div class="eob-summary-item">
+                            <div class="eob-summary-label">Insurer</div>
+                            <div class="eob-summary-value">${getTextFromFHIR(eob.insurer) || 'N/A'}</div>
+                        </div>
+                        <div class="eob-summary-item">
+                            <div class="eob-summary-label">Provider</div>
+                            <div class="eob-summary-value">${getTextFromFHIR(eob.provider) || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="eob-sections">
+                    <!-- Financial Summary Section -->
+                    <div class="eob-section">
+                        <div class="eob-section-header">
+                            <span>💰</span>
+                            <span>Financial Summary</span>
+                        </div>
+                        <div class="eob-section-content">
+                            <div class="eob-summary-grid">
+                                <div class="eob-summary-item">
+                                    <div class="eob-summary-label">Total Billed</div>
+                                    <div class="eob-summary-value amount">$${totalBilled.toFixed(2)}</div>
+                                </div>
+                                <div class="eob-summary-item">
+                                    <div class="eob-summary-label">Insurance Covered</div>
+                                    <div class="eob-summary-value amount">$${totalCovered.toFixed(2)}</div>
+                                </div>
+                                <div class="eob-summary-item">
+                                    <div class="eob-summary-label">Patient Responsibility</div>
+                                    <div class="eob-summary-value amount">$${totalPatientResponsibility.toFixed(2)}</div>
+                                </div>
+                                <div class="eob-summary-item">
+                                    <div class="eob-summary-label">Copay Amount</div>
+                                    <div class="eob-summary-value amount">$${totalCopay.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Service Items Section -->
+                    <div class="eob-section">
+                        <div class="eob-section-header">
+                            <span>🏥</span>
+                            <span>Service Items</span>
+                        </div>
+                        <div class="eob-section-content">
+                            <table class="eob-table">
+                                <thead>
+                                    <tr>
+                                        <th>Service Description</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Billed Amount</th>
+                                        <th>Patient Responsibility</th>
+                                        <th>Copay</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${eob.item && eob.item.length > 0 ? eob.item.map(item => {
+                                        const { startDate, endDate } = formatServiceDates(item);
+                                        // Calculate billed amount for service items table
+                                        let billedAmount = 0;
+                                        
+                                        if (item.adjudication && item.adjudication.length > 0) {
+                                            const submittedAdj = item.adjudication.find(adj => {
+                                                const category = getTextFromFHIR(adj.category);
+                                                return category.toLowerCase().includes('submitted') || category.toLowerCase().includes('billed');
+                                            });
+                                            if (submittedAdj) {
+                                                billedAmount = parseFloat(submittedAdj.amount?.value || submittedAdj.amount || 0) || 0;
+                                            }
+                                        }
+                                        
+                                        // Fallback to other fields if no submitted adjudication found
+                                        if (billedAmount === 0) {
+                                            billedAmount = parseFloat(item.net || item.unitPrice?.value || item.factor || 0) || 0;
+                                        }
+                                        const patientResponsibility = item.adjudication ? item.adjudication.reduce((sum, adj) => {
+                                            const categoryText = getTextFromFHIR(adj.category);
+                                            if (categoryText.toLowerCase().includes('patient') || 
+                                                categoryText.toLowerCase().includes('responsibility') ||
+                                                categoryText.toLowerCase().includes('deductible')) {
+                                                return sum + (parseFloat(adj.amount?.value || adj.amount || 0) || 0);
+                                            }
+                                            return sum;
+                                        }, 0) : 0;
+                                        const copayAmount = item.adjudication ? item.adjudication.reduce((sum, adj) => {
+                                            const categoryText = getTextFromFHIR(adj.category);
+                                            if (categoryText.toLowerCase().includes('copay')) {
+                                                return sum + (parseFloat(adj.amount?.value || adj.amount || 0) || 0);
+                                            }
+                                            return sum;
+                                        }, 0) : 0;
+                                        
+                                        return `
+                                            <tr>
+                                                <td>${getTextFromFHIR(item.productOrService)}</td>
+                                                <td>${startDate}</td>
+                                                <td>${endDate}</td>
+                                                <td class="amount-cell">$${billedAmount.toFixed(2)}</td>
+                                                <td class="amount-cell">$${patientResponsibility.toFixed(2)}</td>
+                                                <td class="amount-cell">$${copayAmount.toFixed(2)}</td>
+                                            </tr>
+                                        `;
+                                    }).join('') : '<tr><td colspan="6">No service items found</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Section -->
+                    <div class="payment-section">
+                        <div class="payment-header">
+                            <span>💳</span>
+                            <h3>Payment Options</h3>
+                        </div>
+                        <div class="payment-summary">
+                            <div class="payment-item">
+                                <div class="payment-label">Copay Due</div>
+                                <div class="payment-amount">$${totalCopay.toFixed(2)}</div>
+                            </div>
+                            <div class="payment-item">
+                                <div class="payment-label">Patient Responsibility</div>
+                                <div class="payment-amount">$${totalPatientResponsibility.toFixed(2)}</div>
+                            </div>
+                            <div class="payment-item">
+                                <div class="payment-label">Total Due</div>
+                                <div class="payment-amount">$${(totalCopay + totalPatientResponsibility).toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="payment-actions">
+                            <button class="payment-btn btn-primary" onclick="processPayment('copay', ${totalCopay})">
+                                <span>💳</span>
+                                <span>Pay Copay Only</span>
+                            </button>
+                            <button class="payment-btn btn-primary" onclick="processPayment('full', ${totalPatientResponsibility + totalCopay})">
+                                <span>💰</span>
+                                <span>Pay Full Amount</span>
+                            </button>
+                            <button class="payment-btn btn-secondary" onclick="schedulePayment()">
+                                <span>📅</span>
+                                <span>Schedule Payment</span>
+                            </button>
+                            <button class="payment-btn btn-secondary" onclick="downloadEOB()">
+                                <span>📄</span>
+                                <span>Download EOB</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            detailsDiv.innerHTML = html;
+            } catch (error) {
+                console.error('Error displaying EOB details:', error);
+                detailsDiv.innerHTML = `
+                    <div style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h3>Error loading EOB details</h3>
+                        <p>${error.message}</p>
+                        <p>Please try refreshing the page or contact support if the issue persists.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function formatServiceDates(item) {
+            let startDate = 'N/A';
+            let endDate = 'N/A';
+            
+            if (item.servicedPeriodStart) {
+                startDate = item.servicedPeriodStart;
+            } else if (item.servicedPeriod?.start) {
+                startDate = item.servicedPeriod.start;
+            } else if (item.servicedDate) {
+                startDate = item.servicedDate;
+            }
+            
+            if (item.servicedPeriodEnd) {
+                endDate = item.servicedPeriodEnd;
+            } else if (item.servicedPeriod?.end) {
+                endDate = item.servicedPeriod.end;
+            } else if (item.servicedDate) {
+                endDate = item.servicedDate;
+            }
+            
+            return { startDate, endDate };
+        }
+
+        // Payment Processing Functions
+        function processPayment(type, amount) {
+            const paymentType = type === 'copay' ? 'Copay' : 'Full Amount';
+            const confirmMessage = `Are you sure you want to process a payment of $${amount.toFixed(2)} for ${paymentType}?`;
+            
+            if (confirm(confirmMessage)) {
+                // Show loading state
+                const button = event.target.closest('.payment-btn');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span>⏳</span><span>Processing...</span>';
+                button.disabled = true;
+                
+                // Simulate payment processing (replace with actual payment gateway integration)
+                setTimeout(() => {
+                    alert(`Payment of $${amount.toFixed(2)} processed successfully!`);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    // Close modal after successful payment
+                    closeModal();
+                }, 2000);
+            }
+        }
+        
+        function schedulePayment() {
+            const amount = prompt('Enter the amount to schedule for payment:');
+            if (amount && !isNaN(amount)) {
+                const date = prompt('Enter payment date (YYYY-MM-DD):');
+                if (date) {
+                    alert(`Payment of $${amount} scheduled for ${date}`);
+                }
+            }
+        }
+        
+        function downloadEOB() {
+            // Simulate EOB download (replace with actual PDF generation)
+            alert('EOB download started...');
+            
+            // Create a simple text file for demo purposes
+            const eobContent = `Explanation of Benefits\nClaim ID: ${currentEOB?.id || 'N/A'}\nGenerated: ${new Date().toLocaleDateString()}`;
+            const blob = new Blob([eobContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `EOB_${currentEOB?.id || 'unknown'}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('eobModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+
+    <!-- Enhanced Modal Styles -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 2% auto;
+            padding: 0;
+            border: none;
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 16px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-title .icon {
+            font-size: 1.8rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            background: white;
+            padding: 30px;
+            max-height: calc(90vh - 100px);
+            overflow-y: auto;
+        }
+
+        .eob-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .eob-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .eob-summary-item {
+            text-align: center;
+        }
+
+        .eob-summary-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .eob-summary-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .eob-summary-value.amount {
+            color: #667eea;
+            font-size: 1.4rem;
+        }
+
+        .eob-sections {
+            display: grid;
+            gap: 25px;
+        }
+
+        .eob-section {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .eob-section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eob-section-content {
+            padding: 20px;
+        }
+
+        .eob-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .eob-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .eob-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+
+        .eob-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .amount-cell {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Payment Section */
+        .payment-section {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .payment-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .payment-item {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .payment-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .payment-amount {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .payment-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .payment-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #28a745;
+        }
+
+        .btn-primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+            
+            .eob-summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-actions {
+                flex-direction: column;
+            }
+            
+            .payment-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>

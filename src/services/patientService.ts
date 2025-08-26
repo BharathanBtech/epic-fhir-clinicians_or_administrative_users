@@ -22,9 +22,30 @@ export async function getPatientDetails(token: string, patientId: string): Promi
       family: patient.name?.[0]?.family,
       gender: patient.gender,
       birthDate: patient.birthDate,
-      address: patient.address?.[0],
+      maritalStatus: patient.maritalStatus?.text || patient.maritalStatus?.coding?.[0]?.display,
+      address: patient.address?.[0] ? {
+        line: patient.address[0].line,
+        city: patient.address[0].city,
+        state: patient.address[0].state,
+        postalCode: patient.address[0].postalCode,
+        country: patient.address[0].country
+      } : undefined,
       phone: patient.telecom?.find((t: any) => t.system === 'phone')?.value,
-      email: patient.telecom?.find((t: any) => t.system === 'email')?.value
+      email: patient.telecom?.find((t: any) => t.system === 'email')?.value,
+      language: patient.communication?.[0]?.language?.coding?.[0]?.display || patient.communication?.[0]?.language?.text,
+      ethnicity: patient.extension?.find((ext: any) => ext.url?.includes('ethnicity'))?.valueCodeableConcept?.coding?.[0]?.display,
+      race: patient.extension?.find((ext: any) => ext.url?.includes('race'))?.valueCodeableConcept?.coding?.[0]?.display,
+      deceased: patient.deceasedBoolean || false,
+      deceasedDate: patient.deceasedDateTime,
+      multipleBirth: patient.multipleBirthBoolean || false,
+      multipleBirthCount: patient.multipleBirthInteger,
+      photo: patient.photo?.[0]?.url,
+      contact: patient.contact?.map((contact: any) => ({
+        relationship: contact.relationship?.[0]?.coding?.[0]?.display || contact.relationship?.[0]?.text,
+        name: contact.name?.text || `${contact.name?.given?.join(' ')} ${contact.name?.family}`,
+        phone: contact.telecom?.find((t: any) => t.system === 'phone')?.value,
+        email: contact.telecom?.find((t: any) => t.system === 'email')?.value
+      }))
     };
   } catch (error) {
     console.error('❌ Error fetching patient details:', error);
