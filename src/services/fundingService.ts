@@ -1,7 +1,9 @@
-import { PatientFundingData, FundingSummary, EOBDetails } from '../types/fhir.js';
+import { PatientFundingData, FundingSummary, EOBDetails, PractitionerDetails, OrganizationDetails } from '../types/fhir.js';
 import { getPatientDetails } from './patientService.js';
 import { getPatientCoverage } from './coverageService.js';
 import { getExplanationOfBenefits } from './eobService.js';
+import { getPractitionerByPatient } from './practitionerService.js';
+import { getOrganizationByPatient } from './organizationService.js';
 import { calculatePatientResponsibility, calculateCoveredAmount } from '../utils/fhirHelpers.js';
 
 /**
@@ -11,12 +13,14 @@ export async function getPatientFundingSummary(token: string, patientId: string)
   console.log('🔍 Starting getPatientFundingSummary for patientId:', patientId);
   
   try {
-    // Get patient details, coverage, and EOBs in parallel
-    console.log('📡 Fetching patient details, coverage, and EOBs...');
-    const [patientDetails, coverage, eobs] = await Promise.all([
+    // Get patient details, coverage, EOBs, practitioners, and organizations in parallel
+    console.log('📡 Fetching patient details, coverage, EOBs, practitioners, and organizations...');
+    const [patientDetails, coverage, eobs, practitioners, organizations] = await Promise.all([
       getPatientDetails(token, patientId),
       getPatientCoverage(token, patientId),
-      getExplanationOfBenefits(token, patientId)
+      getExplanationOfBenefits(token, patientId),
+      getPractitionerByPatient(patientId, token),
+      getOrganizationByPatient(patientId, token)
     ]);
     
     console.log('✅ Data fetched successfully:');
@@ -24,6 +28,12 @@ export async function getPatientFundingSummary(token: string, patientId: string)
     console.log('  - Coverage count:', coverage?.length || 0);
     console.log('  - EOBs count:', eobs?.length || 0);
     console.log('  - EOBs IDs:', eobs?.map((eob: any) => eob.id) || []);
+    console.log('  - Practitioners count:', practitioners?.length || 0);
+    console.log('  - Practitioners data:', practitioners);
+    console.log('  - Patient practitioner IDs:', patientDetails.practitionerIds);
+    console.log('  - Organizations count:', organizations?.length || 0);
+    console.log('  - Organizations data:', organizations);
+    console.log('  - Patient organization IDs:', patientDetails.organizationIds);
     
     // Calculate funding summary from EOBs
     const fundingSummary = calculateFundingSummary(eobs);
@@ -41,6 +51,8 @@ export async function getPatientFundingSummary(token: string, patientId: string)
       patient: patientDetails,
       coverage: coverage,
       eobs: eobs,
+      practitioners: practitioners,
+      organizations: organizations,
       fundingSummary: fundingSummary
     };
   } catch (error) {

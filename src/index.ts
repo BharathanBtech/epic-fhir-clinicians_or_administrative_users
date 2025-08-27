@@ -76,12 +76,22 @@ app.use(errorHandler);
 
 // Start server
 const PORT = config.port;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`🚀 Server running at http://localhost:${PORT}`, {
     port: PORT,
     environment: config.environment,
     fhirBase: config.fhirBase
   });
+});
+
+// Keep the process alive
+server.on('error', (error) => {
+  logger.error('Server error:', error);
+  process.exit(1);
+});
+
+server.on('close', () => {
+  logger.info('Server closed');
 });
 
 // Graceful shutdown

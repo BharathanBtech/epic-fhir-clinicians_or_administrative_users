@@ -154,6 +154,113 @@ export interface PatientDetails {
     phone?: string;
     email?: string;
   }>;
+  practitionerIds?: string[];
+  organizationIds?: string[];
+}
+
+export interface PractitionerDetails {
+  id: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: any;
+  }>;
+  active?: boolean;
+  name?: {
+    use?: string;
+    text?: string;
+    family?: string;
+    given?: string[];
+    prefix?: string[];
+    suffix?: string[];
+  };
+  telecom?: Array<{
+    system?: string;
+    value?: string;
+    use?: string;
+  }>;
+  address?: Array<{
+    use?: string;
+    type?: string;
+    text?: string;
+    line?: string[];
+    city?: string;
+    district?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  }>;
+  gender?: string;
+  birthDate?: string;
+  photo?: Array<{
+    contentType?: string;
+    language?: string;
+    data?: string;
+    url?: string;
+    size?: number;
+    hash?: string;
+    title?: string;
+  }>;
+  qualification?: Array<{
+    identifier?: Array<{
+      system?: string;
+      value?: string;
+    }>;
+    code?: any;
+    period?: {
+      start?: string;
+      end?: string;
+    };
+    issuer?: any;
+  }>;
+  communication?: Array<{
+    language?: any;
+    preferred?: boolean;
+  }>;
+}
+
+export interface OrganizationDetails {
+  id: string;
+  identifier?: Array<{
+    system?: string;
+    value?: string;
+    type?: any;
+  }>;
+  active?: boolean;
+  name?: string;
+  alias?: string[];
+  telecom?: Array<{
+    system?: string;
+    value?: string;
+    use?: string;
+  }>;
+  address?: Array<{
+    use?: string;
+    type?: string;
+    text?: string;
+    line?: string[];
+    city?: string;
+    district?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  }>;
+  type?: any;
+  partOf?: any;
+  contact?: Array<{
+    purpose?: any;
+    name?: any;
+    telecom?: Array<{
+      system?: string;
+      value?: string;
+      use?: string;
+    }>;
+    address?: any;
+  }>;
+  endpoint?: Array<{
+    reference?: string;
+    type?: string;
+  }>;
 }
 
 export interface CoverageDetails {
@@ -236,5 +343,7 @@ export interface PatientFundingData {
   patient: PatientDetails;
   coverage: CoverageDetails[];
   eobs: EOBDetails[];
+  practitioners: PractitionerDetails[];
+  organizations: OrganizationDetails[];
   fundingSummary: FundingSummary;
 }

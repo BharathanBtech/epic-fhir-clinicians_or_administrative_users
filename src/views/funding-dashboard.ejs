@@ -211,6 +211,216 @@
             font-weight: 500;
         }
 
+        /* Practitioner Styles */
+        .practitioners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .practitioner-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .practitioner-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .practitioner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .practitioner-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .practitioner-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .practitioner-avatar {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .practitioner-status {
+            margin-top: 5px;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .practitioner-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+
+        .practitioner-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .practitioner-contact,
+        .practitioner-address,
+        .practitioner-qualifications {
+            margin-top: 15px;
+        }
+
+        .practitioner-contact h4,
+        .practitioner-address h4,
+        .practitioner-qualifications h4 {
+            color: #667eea;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 5px;
+        }
+
+        .contact-item,
+        .address-item,
+        .qualification-item {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .contact-type {
+            font-weight: 600;
+            color: #666;
+            margin-right: 5px;
+        }
+
+        .address-line {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .address-city {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .address-country {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .qualification-code {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .qualification-period {
+            color: #666;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* Organization Styles */
+        .organizations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .organization-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .organization-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .organization-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .organization-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .organization-status {
+            margin-top: 5px;
+        }
+
+        .organization-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 15px 0;
+        }
+
+        .organization-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .organization-contact,
+        .organization-address,
+        .organization-contacts {
+            margin-top: 15px;
+        }
+
+        .organization-contact h4,
+        .organization-address h4,
+        .organization-contacts h4 {
+            color: #28a745;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 5px;
+        }
+
         .detail-item {
             display: flex;
             flex-direction: column;
@@ -776,20 +986,259 @@
             </div>
             <% } %>
 
-            <!-- Placeholder sections for future APIs -->
-            <% if (config.showOrganization) { %>
-            <div id="organization-section" class="content-section" style="display: none;">
-                <div class="section-header">
-                    <div class="section-title">
-                        <span>🏢</span>
-                        <span>Organization</span>
-                    </div>
+                    <!-- Practitioner Section -->
+        <% if (config.showPractitioner) { %>
+        <!-- DEBUG: Practitioner section enabled, practitioners count: <%= fundingData.practitioners ? fundingData.practitioners.length : 'undefined' %> -->
+        <div id="practitioner-section" class="content-section" style="display: none;">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>👨‍⚕️</span>
+                    <span>Practitioners</span>
                 </div>
-                <div class="section-content">
-                    <p>Organization information will be implemented in Phase 2.</p>
+                <div class="section-actions">
+                    <button class="refresh-btn" onclick="refreshPractitioners()">
+                        <span>🔄</span>
+                    </button>
                 </div>
             </div>
-            <% } %>
+            <div class="section-content">
+                <% if (fundingData.practitioners && fundingData.practitioners.length > 0) { %>
+                    <div class="practitioners-grid">
+                        <% fundingData.practitioners.forEach(function(practitioner, index) { %>
+                        <div class="practitioner-card">
+                            <div class="practitioner-header">
+                                <div class="practitioner-photo">
+                                    <% if (practitioner.photo && practitioner.photo[0] && practitioner.photo[0].url) { %>
+                                        <img src="<%= practitioner.photo[0].url %>" alt="Practitioner Photo" />
+                                    <% } else { %>
+                                        <div class="practitioner-avatar">
+                                            <span>👨‍⚕️</span>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <div class="practitioner-status">
+                                    <span class="status-badge <%= practitioner.active ? 'status-active' : 'status-inactive' %>">
+                                        <%= practitioner.active ? 'Active' : 'Inactive' %>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="practitioner-info">
+                                <h3 class="practitioner-name">
+                                    <%= practitioner.name?.text || `${practitioner.name?.given?.join(' ') || ''} ${practitioner.name?.family || ''}`.trim() || 'Unknown Name' %>
+                                </h3>
+                                <div class="practitioner-details">
+                                    <% if (practitioner.identifier && practitioner.identifier.length > 0) { %>
+                                    <div class="detail-item">
+                                        <span class="detail-label">ID:</span>
+                                        <span class="detail-value"><%= practitioner.identifier[0].value || 'N/A' %></span>
+                                    </div>
+                                    <% } %>
+                                    <% if (practitioner.gender) { %>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Gender:</span>
+                                        <span class="detail-value"><%= practitioner.gender %></span>
+                                    </div>
+                                    <% } %>
+                                    <% if (practitioner.birthDate) { %>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Birth Date:</span>
+                                        <span class="detail-value"><%= practitioner.birthDate %></span>
+                                    </div>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- Contact Information -->
+                                <% if (practitioner.telecom && practitioner.telecom.length > 0) { %>
+                                <div class="practitioner-contact">
+                                    <h4>Contact Information</h4>
+                                    <% practitioner.telecom.forEach(function(contact) { %>
+                                    <div class="contact-item">
+                                        <span class="contact-type"><%= contact.system || 'Unknown' %>:</span>
+                                        <span class="contact-value"><%= contact.value || 'N/A' %></span>
+                                    </div>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                                
+                                <!-- Address Information -->
+                                <% if (practitioner.address && practitioner.address.length > 0) { %>
+                                <div class="practitioner-address">
+                                    <h4>Address</h4>
+                                    <% practitioner.address.forEach(function(address, addrIndex) { %>
+                                    <div class="address-item">
+                                        <% if (address.line && address.line.length > 0) { %>
+                                            <div class="address-line"><%= address.line.join(', ') %></div>
+                                        <% } %>
+                                        <div class="address-city">
+                                            <%= address.city || '' %> <%= address.state || '' %> <%= address.postalCode || '' %>
+                                        </div>
+                                        <% if (address.country) { %>
+                                            <div class="address-country"><%= address.country %></div>
+                                        <% } %>
+                                    </div>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                                
+                                <!-- Qualifications -->
+                                <% if (practitioner.qualification && practitioner.qualification.length > 0) { %>
+                                <div class="practitioner-qualifications">
+                                    <h4>Qualifications</h4>
+                                    <% practitioner.qualification.forEach(function(qual) { %>
+                                    <div class="qualification-item">
+                                        <div class="qualification-code">
+                                            <%= qual.code?.coding?.[0]?.display || qual.code?.text || 'Unknown Qualification' %>
+                                        </div>
+                                        <% if (qual.period) { %>
+                                        <div class="qualification-period">
+                                            <%= qual.period.start || '' %> - <%= qual.period.end || 'Present' %>
+                                        </div>
+                                        <% } %>
+                                    </div>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="no-data">
+                        <p>No practitioners found for this patient.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Organization Section -->
+        <% if (config.showOrganization) { %>
+        <div id="organization-section" class="content-section" style="display: none;">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>🏢</span>
+                    <span>Organizations</span>
+                </div>
+                <div class="section-actions">
+                    <button class="refresh-btn" onclick="refreshOrganizations()">
+                        <span>🔄</span>
+                    </button>
+                </div>
+            </div>
+            <div class="section-content">
+                <% if (fundingData.organizations && fundingData.organizations.length > 0) { %>
+                    <div class="organizations-grid">
+                        <% fundingData.organizations.forEach(function(organization, index) { %>
+                        <div class="organization-card">
+                            <div class="organization-header">
+                                <div class="organization-icon">
+                                    <span>🏢</span>
+                                </div>
+                                <div class="organization-status">
+                                    <span class="status-badge <%= organization.active ? 'status-active' : 'status-inactive' %>">
+                                        <%= organization.active ? 'Active' : 'Inactive' %>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="organization-info">
+                                <h3 class="organization-name">
+                                    <%= organization.name || 'Unknown Organization' %>
+                                </h3>
+                                <div class="organization-details">
+                                    <% if (organization.identifier && organization.identifier.length > 0) { %>
+                                    <div class="detail-item">
+                                        <span class="detail-label">ID:</span>
+                                        <span class="detail-value"><%= organization.identifier[0].value || 'N/A' %></span>
+                                    </div>
+                                    <% } %>
+                                    <% if (organization.type) { %>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Type:</span>
+                                        <span class="detail-value"><%= organization.type?.coding?.[0]?.display || organization.type?.text || 'N/A' %></span>
+                                    </div>
+                                    <% } %>
+                                    <% if (organization.alias && organization.alias.length > 0) { %>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Alias:</span>
+                                        <span class="detail-value"><%= organization.alias.join(', ') %></span>
+                                    </div>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- Contact Information -->
+                                <% if (organization.telecom && organization.telecom.length > 0) { %>
+                                <div class="organization-contact">
+                                    <h4>Contact Information</h4>
+                                    <% organization.telecom.forEach(function(contact) { %>
+                                    <div class="contact-item">
+                                        <span class="contact-type"><%= contact.system || 'Unknown' %>:</span>
+                                        <span class="contact-value"><%= contact.value || 'N/A' %></span>
+                                    </div>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                                
+                                <!-- Address Information -->
+                                <% if (organization.address && organization.address.length > 0) { %>
+                                <div class="organization-address">
+                                    <h4>Address</h4>
+                                    <% organization.address.forEach(function(address, addrIndex) { %>
+                                    <div class="address-item">
+                                        <% if (address.line && address.line.length > 0) { %>
+                                            <div class="address-line"><%= address.line.join(', ') %></div>
+                                        <% } %>
+                                        <div class="address-city">
+                                            <%= address.city || '' %> <%= address.state || '' %> <%= address.postalCode || '' %>
+                                        </div>
+                                        <% if (address.country) { %>
+                                            <div class="address-country"><%= address.country %></div>
+                                        <% } %>
+                                    </div>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                                
+                                <!-- Organization Contacts -->
+                                <% if (organization.contact && organization.contact.length > 0) { %>
+                                <div class="organization-contacts">
+                                    <h4>Organization Contacts</h4>
+                                    <% organization.contact.forEach(function(contact, contactIndex) { %>
+                                    <div class="contact-card">
+                                        <div class="contact-header">
+                                            <strong><%= contact.purpose?.coding?.[0]?.display || 'Contact' %> <%= contactIndex + 1 %></strong>
+                                        </div>
+                                        <div class="contact-details">
+                                            <% if (contact.name) { %>
+                                            <div class="contact-item">
+                                                <span class="contact-label">Name:</span>
+                                                <span class="contact-value"><%= contact.name?.text || 'N/A' %></span>
+                                            </div>
+                                            <% } %>
+                                            <% if (contact.telecom && contact.telecom.length > 0) { %>
+                                            <% contact.telecom.forEach(function(telecom) { %>
+                                            <div class="contact-item">
+                                                <span class="contact-label"><%= telecom.system || 'Unknown' %>:</span>
+                                                <span class="contact-value"><%= telecom.value || 'N/A' %></span>
+                                            </div>
+                                            <% }); %>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="no-data">
+                        <p>No organizations found for this patient.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
 
             <% if (config.showPractitioner) { %>
             <div id="practitioner-section" class="content-section" style="display: none;">
@@ -884,6 +1333,8 @@
     <script>
         // Configuration object for feature flags
         const config = <%- JSON.stringify(config) %>;
+        console.log('Config loaded:', config);
+        console.log('showPractitioner:', config.showPractitioner);
         
         // Show section function
         function showSection(sectionName) {
@@ -971,6 +1422,300 @@
                 })
                 .catch(error => {
                     content.innerHTML = '<div class="error">Error refreshing EOB data: ' + error.message + '</div>';
+                });
+        }
+
+        function refreshPractitioners() {
+            const practitionerSection = document.getElementById('practitioner-section');
+            practitionerSection.innerHTML = '<div class="loading">Refreshing practitioner data...</div>';
+            
+            fetch('/funding/api/practitioners')
+                .then(response => response.json())
+                .then(data => {
+                    // Re-render practitioner section
+                    if (data && data.length > 0) {
+                        practitionerSection.innerHTML = `
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span>👨‍⚕️</span>
+                                    <span>Practitioners</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="refresh-btn" onclick="refreshPractitioners()">
+                                        <span>🔄</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="practitioners-grid">
+                                    ${data.map(practitioner => `
+                                        <div class="practitioner-card">
+                                            <div class="practitioner-header">
+                                                <div class="practitioner-photo">
+                                                    ${practitioner.photo && practitioner.photo[0] && practitioner.photo[0].url ? 
+                                                        `<img src="${practitioner.photo[0].url}" alt="Practitioner Photo" />` :
+                                                        `<div class="practitioner-avatar"><span>👨‍⚕️</span></div>`
+                                                    }
+                                                </div>
+                                                <div class="practitioner-status">
+                                                    <span class="status-badge ${practitioner.active ? 'status-active' : 'status-inactive'}">
+                                                        ${practitioner.active ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="practitioner-info">
+                                                <h3 class="practitioner-name">
+                                                    ${practitioner.name?.text || `${practitioner.photo?.given?.join(' ') || ''} ${practitioner.name?.family || ''}`.trim() || 'Unknown Name'}
+                                                </h3>
+                                                <div class="practitioner-details">
+                                                    ${practitioner.identifier && practitioner.identifier.length > 0 ? `
+                                                        <div class="detail-item">
+                                                            <span class="detail-label">ID:</span>
+                                                            <span class="detail-value">${practitioner.identifier[0].value || 'N/A'}</span>
+                                                        </div>
+                                                    ` : ''}
+                                                    ${practitioner.gender ? `
+                                                        <div class="detail-item">
+                                                            <span class="detail-label">Gender:</span>
+                                                            <span class="detail-value">${practitioner.gender}</span>
+                                                        </div>
+                                                    ` : ''}
+                                                    ${practitioner.birthDate ? `
+                                                        <div class="detail-item">
+                                                            <span class="detail-label">Birth Date:</span>
+                                                            <span class="detail-value">${practitioner.birthDate}</span>
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                                
+                                                ${practitioner.telecom && practitioner.telecom.length > 0 ? `
+                                                    <div class="practitioner-contact">
+                                                        <h4>Contact Information</h4>
+                                                        ${practitioner.telecom.map(contact => `
+                                                            <div class="contact-item">
+                                                                <span class="contact-type">${contact.system || 'Unknown'}:</span>
+                                                                <span class="contact-value">${contact.value || 'N/A'}</span>
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                                
+                                                ${practitioner.address && practitioner.address.length > 0 ? `
+                                                    <div class="practitioner-address">
+                                                        <h4>Address</h4>
+                                                        ${practitioner.address.map(address => `
+                                                            <div class="address-item">
+                                                                ${address.line && address.line.length > 0 ? 
+                                                                    `<div class="address-line">${address.line.join(', ')}</div>` : ''
+                                                                }
+                                                                <div class="address-city">
+                                                                    ${address.city || ''} ${address.state || ''} ${address.postalCode || ''}
+                                                                </div>
+                                                                ${address.country ? `<div class="address-country">${address.country}</div>` : ''}
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                                
+                                                ${practitioner.qualification && practitioner.qualification.length > 0 ? `
+                                                    <div class="practitioner-qualifications">
+                                                        <h4>Qualifications</h4>
+                                                        ${practitioner.qualification.map(qual => `
+                                                            <div class="qualification-item">
+                                                                <div class="qualification-code">
+                                                                    ${qual.code?.coding?.[0]?.display || qual.code?.text || 'Unknown Qualification'}
+                                                                </div>
+                                                                ${qual.period ? `
+                                                                    <div class="qualification-period">
+                                                                        ${qual.period.start || ''} - ${qual.period.end || 'Present'}
+                                                                    </div>
+                                                                ` : ''}
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        practitionerSection.innerHTML = `
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span>👨‍⚕️</span>
+                                    <span>Practitioners</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="refresh-btn" onclick="refreshPractitioners()">
+                                        <span>🔄</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="no-data">
+                                    <p>No practitioners found for this patient.</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing practitioners:', error);
+                    const practitionerSection = document.getElementById('practitioner-section');
+                    practitionerSection.innerHTML = '<div class="error">Error refreshing practitioner data</div>';
+                });
+        }
+
+        function refreshOrganizations() {
+            const organizationSection = document.getElementById('organization-section');
+            organizationSection.innerHTML = '<div class="loading">Refreshing organization data...</div>';
+            
+            fetch('/funding/api/organizations')
+                .then(response => response.json())
+                .then(data => {
+                    // Re-render organization section
+                    if (data && data.length > 0) {
+                        organizationSection.innerHTML = `
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span>🏢</span>
+                                    <span>Organizations</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="refresh-btn" onclick="refreshOrganizations()">
+                                        <span>🔄</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="organizations-grid">
+                                    ${data.map(organization => `
+                                        <div class="organization-card">
+                                            <div class="organization-header">
+                                                <div class="organization-icon">
+                                                    <span>🏢</span>
+                                                </div>
+                                                <div class="organization-status">
+                                                    <span class="status-badge ${organization.active ? 'status-active' : 'status-inactive'}">
+                                                        ${organization.active ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="organization-info">
+                                                <h3 class="organization-name">
+                                                    ${organization.name || 'Unknown Organization'}
+                                                </h3>
+                                                <div class="organization-details">
+                                                    ${organization.identifier && organization.identifier.length > 0 ? `
+                                                        <div class="detail-item">
+                                                            <span class="detail-label">ID:</span>
+                                                            <span class="detail-value">${organization.identifier[0].value || 'N/A'}</span>
+                                                        </div>
+                                                    ` : ''}
+                                                    ${organization.type ? `
+                                                        <div class="detail-item">
+                                                            <span class="detail-label">Type:</span>
+                                                            <span class="detail-value">${organization.type?.coding?.[0]?.display || organization.type?.text || 'N/A'}</span>
+                                                        </div>
+                                                    ` : ''}
+                                                    ${organization.alias && organization.alias.length > 0 ? `
+                                                        <div class="detail-item">
+                                                            <span class="detail-label">Alias:</span>
+                                                            <span class="detail-value">${organization.alias.join(', ')}</span>
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                                
+                                                ${organization.telecom && organization.telecom.length > 0 ? `
+                                                    <div class="organization-contact">
+                                                        <h4>Contact Information</h4>
+                                                        ${organization.telecom.map(contact => `
+                                                            <div class="contact-item">
+                                                                <span class="contact-type">${contact.system || 'Unknown'}:</span>
+                                                                <span class="contact-value">${contact.value || 'N/A'}</span>
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                                
+                                                ${organization.address && organization.address.length > 0 ? `
+                                                    <div class="organization-address">
+                                                        <h4>Address</h4>
+                                                        ${organization.address.map(address => `
+                                                            <div class="address-item">
+                                                                ${address.line && address.line.length > 0 ? 
+                                                                    `<div class="address-line">${address.line.join(', ')}</div>` : ''
+                                                                }
+                                                                <div class="address-city">
+                                                                    ${address.city || ''} ${address.state || ''} ${address.postalCode || ''}
+                                                                </div>
+                                                                ${address.country ? `<div class="address-country">${address.country}</div>` : ''}
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                                
+                                                ${organization.contact && organization.contact.length > 0 ? `
+                                                    <div class="organization-contacts">
+                                                        <h4>Organization Contacts</h4>
+                                                        ${organization.contact.map((contact, contactIndex) => `
+                                                            <div class="contact-card">
+                                                                <div class="contact-header">
+                                                                    <strong>${contact.purpose?.coding?.[0]?.display || 'Contact'} ${contactIndex + 1}</strong>
+                                                                </div>
+                                                                <div class="contact-details">
+                                                                    ${contact.name ? `
+                                                                        <div class="contact-item">
+                                                                            <span class="contact-label">Name:</span>
+                                                                            <span class="contact-value">${contact.name?.text || 'N/A'}</span>
+                                                                        </div>
+                                                                    ` : ''}
+                                                                    ${contact.telecom && contact.telecom.length > 0 ? 
+                                                                        contact.telecom.map(telecom => `
+                                                                            <div class="contact-item">
+                                                                                <span class="contact-label">${telecom.system || 'Unknown'}:</span>
+                                                                                <span class="contact-value">${telecom.value || 'N/A'}</span>
+                                                                            </div>
+                                                                        `).join('') : ''
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        organizationSection.innerHTML = `
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span>🏢</span>
+                                    <span>Organizations</span>
+                                </div>
+                                <div class="section-actions">
+                                    <button class="refresh-btn" onclick="refreshOrganizations()">
+                                        <span>🔄</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="no-data">
+                                    <p>No organizations found for this patient.</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing organizations:', error);
+                    const organizationSection = document.getElementById('organization-section');
+                    organizationSection.innerHTML = '<div class="error">Error refreshing organization data</div>';
                 });
         }
 

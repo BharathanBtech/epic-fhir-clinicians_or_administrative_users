@@ -45,7 +45,26 @@ export async function getPatientDetails(token: string, patientId: string): Promi
         name: contact.name?.text || `${contact.name?.given?.join(' ')} ${contact.name?.family}`,
         phone: contact.telecom?.find((t: any) => t.system === 'phone')?.value,
         email: contact.telecom?.find((t: any) => t.system === 'email')?.value
-      }))
+      })),
+      // Extract practitioner IDs from generalPractitioner references
+      practitionerIds: patient.generalPractitioner?.map((gp: any) => {
+        const reference = gp.reference;
+        if (reference && reference.startsWith('Practitioner/')) {
+          return reference.replace('Practitioner/', '');
+        }
+        return null;
+      }).filter((id: string | null) => id !== null) || [],
+      // Extract organization IDs from managingOrganization reference
+      organizationIds: (() => {
+        const orgIds: string[] = [];
+        if (patient.managingOrganization?.reference) {
+          const reference = patient.managingOrganization.reference;
+          if (reference.startsWith('Organization/')) {
+            orgIds.push(reference.replace('Organization/', ''));
+          }
+        }
+        return orgIds;
+      })()
     };
   } catch (error) {
     console.error('❌ Error fetching patient details:', error);
