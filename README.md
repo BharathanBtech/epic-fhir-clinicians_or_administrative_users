@@ -90,7 +90,7 @@ src/
 - Use refresh icons to update specific components
 
 ### 3. EOB Details
-- Click "View EOB" on any claim to see detailed breakdown
+- Click "Sumit for copay" on any claim to see detailed breakdown
 - Review service dates, amounts, and adjudications
 - Analyze patient responsibility and coverage details
 

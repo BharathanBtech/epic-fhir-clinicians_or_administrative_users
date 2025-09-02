@@ -971,7 +971,7 @@
                                         </td>
                                         <td>
                                             <button class="view-btn" onclick="viewEOB('<%= eob.id %>')">
-                                                View EOB
+                                                Sumit for copay
                                             </button>
                                         </td>
                                     </tr>
@@ -1412,7 +1412,7 @@
                                     }, 0);
                                 }
                             }
-                            html += `<tr><td>${eob.id}</td><td>${eob.status}</td><td>${eob.type?.coding?.[0]?.display || eob.type?.text || eob.type || 'N/A'}</td><td>${eob.billablePeriod?.start || 'N/A'}</td><td>${eob.provider || 'N/A'}</td><td>$${typeof totalAmount === 'number' ? totalAmount.toFixed(2) : '0.00'}</td><td><button class="view-btn" onclick="viewEOB('${eob.id}')">View EOB</button></td></tr>`;
+                            html += `<tr><td>${eob.id}</td><td>${eob.status}</td><td>${eob.type?.coding?.[0]?.display || eob.type?.text || eob.type || 'N/A'}</td><td>${eob.billablePeriod?.start || 'N/A'}</td><td>${eob.provider || 'N/A'}</td><td>$${typeof totalAmount === 'number' ? totalAmount.toFixed(2) : '0.00'}</td><td><button class="view-btn" onclick="viewEOB('${eob.id}')">Sumit for copay</button></td></tr>`;
                         });
                         html += '</tbody></table>';
                         content.innerHTML = html;
