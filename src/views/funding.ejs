@@ -811,7 +811,11 @@
                                 </div>
                                 <div class="summary-item">
                                     <span class="summary-label">Total Amount:</span>
-                                    <span class="summary-value">$<%= helpers.calculateTotalAmount(eob).toFixed(2) %></span>
+                                    <span class="summary-value total-amount">$<%= helpers.calculateTotalAmount(eob).toFixed(2) %></span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Patient Responsibility:</span>
+                                    <span class="summary-value patient-resp">$<%= helpers.calculatePatientResponsibility(eob).toFixed(2) %></span>
                                 </div>
                             </div>
                         </div>
@@ -1080,6 +1084,71 @@
             }
         }
 
+        // Helpers used for refresh calculations (mirror server-side logic)
+        function toNumericAmount(input) {
+            if (input == null) return 0;
+            if (typeof input === 'number') return isFinite(input) ? input : 0;
+            if (typeof input === 'string') {
+                const parsed = parseFloat(input.replace(/[^0-9.-]/g, ''));
+                return isNaN(parsed) ? 0 : parsed;
+            }
+            if (typeof input === 'object') {
+                if (Object.prototype.hasOwnProperty.call(input, 'value')) {
+                    return toNumericAmount(input.value);
+                }
+                // FHIR Money may be like { currency, value }, or custom shapes
+            }
+            return 0;
+        }
+
+        function calcTotalAmountFromEOB(eob) {
+            if (eob && Array.isArray(eob.total) && eob.total.length > 0) {
+                const found = eob.total.find(total => {
+                    const code = total.categoryCode || total.category?.coding?.[0]?.code;
+                    const text = (getTextFromFHIR(total.category) || '').toLowerCase();
+                    return code === 'submitted' || text.includes('submitted') || text.includes('billed') || text.includes('charge');
+                });
+                if (found) {
+                    return toNumericAmount(found.amount);
+                }
+                const sumTotals = eob.total.reduce((sum, total) => {
+                    return sum + toNumericAmount(total.amount);
+                }, 0);
+                if (sumTotals > 0) return sumTotals;
+            }
+            if (eob && Array.isArray(eob.item) && eob.item.length > 0) {
+                return eob.item.reduce((sum, item) => sum + toNumericAmount(item.net), 0);
+            }
+            return 0;
+        }
+
+        function calcPatientRespFromEOB(eob) {
+            if (eob && Array.isArray(eob.total) && eob.total.length > 0) {
+                const found = eob.total.find(total => {
+                    const text = (getTextFromFHIR(total.category) || '').toLowerCase();
+                    return text.includes('patient') || text.includes('responsibility') || text.includes('copay') || text.includes('deductible');
+                });
+                if (found) {
+                    return toNumericAmount(found.amount);
+                }
+            }
+            if (eob && Array.isArray(eob.item) && eob.item.length > 0) {
+                let total = 0;
+                eob.item.forEach(item => {
+                    if (Array.isArray(item.adjudication) && item.adjudication.length > 0) {
+                        item.adjudication.forEach(adj => {
+                            const text = (getTextFromFHIR(adj.category) || '').toLowerCase();
+                            if (text.includes('patient') || text.includes('responsibility') || text.includes('copay') || text.includes('deductible')) {
+                                total += toNumericAmount(adj.amount);
+                            }
+                        });
+                    }
+                });
+                return total;
+            }
+            return 0;
+        }
+
         // Refresh Explanation of Benefits
         async function refreshEOB() {
             const refreshBtn = document.querySelector('.eob-section .refresh-btn');
@@ -1112,8 +1181,12 @@
                             statusBadge.classList.remove('status-inactive');
                             statusBadge.classList.add(e.status === 'active' ? 'status-active' : 'status-inactive');
 
-                            const totalAmountSpan = card.querySelector('.eob-summary .summary-value:last-child');
-                            totalAmountSpan.textContent = `$${typeof (e.total && e.total.length > 0 ? e.total.reduce((sum, t) => sum + (t.amount?.value || t.amount || 0), 0) : 0).toFixed(2)}`;
+                            const totalAmountSpan = card.querySelector('.eob-summary .summary-value.total-amount');
+                            const patientRespSpan = card.querySelector('.eob-summary .summary-value.patient-resp');
+                            const totalAmount = calcTotalAmountFromEOB(e);
+                            const patientResp = calcPatientRespFromEOB(e);
+                            if (totalAmountSpan) totalAmountSpan.textContent = `$${totalAmount.toFixed(2)}`;
+                            if (patientRespSpan) patientRespSpan.textContent = `$${patientResp.toFixed(2)}`;
 
                             // Reset line items and toggle state
                             const lineItemsDiv = card.querySelector('.eob-line-items');

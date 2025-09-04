@@ -1718,9 +1718,25 @@
             }
         }
 
+        // Helper to coerce number, string, or FHIR Money into a number
+        function toNumericAmount(input) {
+            if (input == null) return 0;
+            if (typeof input === 'number') return isFinite(input) ? input : 0;
+            if (typeof input === 'string') {
+                const parsed = parseFloat(input.replace(/[^0-9.-]/g, ''));
+                return isNaN(parsed) ? 0 : parsed;
+            }
+            if (typeof input === 'object') {
+                if (Object.prototype.hasOwnProperty.call(input, 'value')) {
+                    return toNumericAmount(input.value);
+                }
+            }
+            return 0;
+        }
+
         // Helper function to calculate total amount
         function calculateTotalAmount(eob) {
-            if (eob.total && eob.total.length > 0) {
+            if (eob && Array.isArray(eob.total) && eob.total.length > 0) {
                 const submittedTotal = eob.total.find(total => {
                     const categoryText = getTextFromFHIR(total.category);
                     return categoryText.toLowerCase().includes('submitted') || 
@@ -1728,11 +1744,11 @@
                            categoryText.toLowerCase().includes('charge');
                 });
                 if (submittedTotal) {
-                    return submittedTotal.amount?.value || 0;
+                    return toNumericAmount(submittedTotal.amount);
                 }
                 // Fallback to sum of all totals if no submitted total found
                 return eob.total.reduce((sum, total) => {
-                    return sum + (total.amount?.value || 0);
+                    return sum + toNumericAmount(total.amount);
                 }, 0);
             }
             return 0;
@@ -1740,15 +1756,16 @@
 
         // Helper function to calculate patient responsibility
         function calculatePatientResponsibility(eob) {
-            if (eob.total && eob.total.length > 0) {
+            if (eob && Array.isArray(eob.total) && eob.total.length > 0) {
                 const patientTotal = eob.total.find(total => {
                     const categoryText = getTextFromFHIR(total.category);
                     return categoryText.toLowerCase().includes('patient') || 
                            categoryText.toLowerCase().includes('responsibility') ||
+                           categoryText.toLowerCase().includes('copay') ||
                            categoryText.toLowerCase().includes('deductible');
                 });
                 if (patientTotal) {
-                    return patientTotal.amount?.value || 0;
+                    return toNumericAmount(patientTotal.amount);
                 }
             }
             return 0;

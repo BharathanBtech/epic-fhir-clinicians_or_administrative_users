@@ -371,17 +371,33 @@ function simulateStatusProgression(submission: any) {
  * Helper functions for data transformation - Using direct API data
  */
 function calculateTotalAmount(eobData: any): number {
-  // Look for "submitted" total in the API response
+  // Look for "submitted/billed/charge" totals in the API response (supports mapped shapes)
   if (eobData.total && eobData.total.length > 0) {
     const submittedTotal = eobData.total.find((total: any) => {
-      const categoryCode = total.category?.coding?.[0]?.code;
+      const categoryCode = total.categoryCode || total.category?.coding?.[0]?.code;
       const categoryText = getTextFromFHIR(total.category);
-      return categoryCode === 'submitted' || categoryText.toLowerCase().includes('submitted');
+      const text = (categoryText || '').toLowerCase();
+      return categoryCode === 'submitted' || text.includes('submitted') || text.includes('billed') || text.includes('charge');
     });
     if (submittedTotal) {
-      return submittedTotal.amount?.value || 0;
+      const amt = submittedTotal.amount;
+      return typeof amt === 'number' ? amt : (amt?.value || 0);
     }
+
+    // Fallback to sum of all totals
+    const sumTotals = eobData.total.reduce((sum: number, total: any) => {
+      const amt = total.amount;
+      const val = typeof amt === 'number' ? amt : (amt?.value || 0);
+      return sum + (val || 0);
+    }, 0);
+    if (sumTotals > 0) return sumTotals;
   }
+
+  // Final fallback: sum item net amounts
+  if (eobData.item && eobData.item.length > 0) {
+    return eobData.item.reduce((sum: number, item: any) => sum + (item.net?.value || item.net || 0), 0);
+  }
+
   return 0;
 }
 
@@ -396,7 +412,8 @@ function calculatePatientResponsibility(eobData: any): number {
              categoryText.toLowerCase().includes('deductible');
     });
     if (patientTotal) {
-      return patientTotal.amount?.value || 0;
+      const amt = patientTotal.amount;
+      return typeof amt === 'number' ? amt : (amt?.value || 0);
     }
   }
   
@@ -411,7 +428,8 @@ function calculatePatientResponsibility(eobData: any): number {
               categoryText.toLowerCase().includes('responsibility') ||
               categoryText.toLowerCase().includes('copay') ||
               categoryText.toLowerCase().includes('deductible')) {
-            totalPatientResponsibility += adj.amount?.value || 0;
+            const amt = adj.amount;
+            totalPatientResponsibility += (typeof amt === 'number') ? amt : (amt?.value || 0);
           }
         });
       }
@@ -430,7 +448,8 @@ function calculateCopayAmount(eobData: any): number {
       return categoryText.toLowerCase().includes('copay');
     });
     if (copayTotal) {
-      return copayTotal.amount?.value || 0;
+      const amt = copayTotal.amount;
+      return typeof amt === 'number' ? amt : (amt?.value || 0);
     }
   }
   return 0;
@@ -444,12 +463,14 @@ function calculateItemPatientResponsibility(item: any): number {
           categoryText.toLowerCase().includes('responsibility') ||
           categoryText.toLowerCase().includes('deductible') ||
           categoryText.toLowerCase().includes('copay')) {
-        return sum + (adj.amount?.value || 0);
+        const amt = adj.amount;
+        const val = (typeof amt === 'number') ? amt : (amt?.value || 0);
+        return sum + val;
       }
       return sum;
     }, 0);
   }
-  return item.net?.value || 0;
+  return item.net?.value || item.net || 0;
 }
 
 function transformLineItems(items: any[]): any[] {
