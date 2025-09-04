@@ -111,12 +111,22 @@ function mapEOBTotal(total: any): EOBTotalDetails {
   console.log('📋 Total amount structure:', total.amount);
   
   const amount = getMoneyValue(total.amount);
+  const categoryText = getCodeableConceptDisplay(total.category);
+  const categoryCode = total.category?.coding?.[0]?.code || '';
+  const categorySystem = total.category?.coding?.[0]?.system || '';
+  
   console.log('📋 Extracted amount:', amount);
+  console.log('📋 Category text:', categoryText);
+  console.log('📋 Category code:', categoryCode);
+  console.log('📋 Category system:', categorySystem);
   
   return {
-    category: getCodeableConceptDisplay(total.category),
+    category: categoryText,
     amount: amount,
-    currency: total.amount?.currency || 'USD'
+    currency: total.amount?.currency || 'USD',
+    // Add the original category object for better type identification
+    categoryCode: categoryCode,
+    categorySystem: categorySystem
   };
 }
 
@@ -140,3 +150,5 @@ function mapEOBAdjudication(adj: any): EOBAdjudicationDetails {
     amount: getMoneyValue(adj.amount)
   };
 }
+
+// Helper functions removed - now using direct API data mapping

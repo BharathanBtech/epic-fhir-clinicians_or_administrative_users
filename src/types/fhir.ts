@@ -316,6 +316,8 @@ export interface EOBTotalDetails {
   category: string;
   amount: number;
   currency: string;
+  categoryCode: string;
+  categorySystem: string;
 }
 
 export interface EOBPaymentDetails {

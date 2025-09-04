@@ -811,7 +811,7 @@
                                 </div>
                                 <div class="summary-item">
                                     <span class="summary-label">Total Amount:</span>
-                                    <span class="summary-value">$<%= (eob.total && eob.total.length > 0 ? eob.total.reduce((sum, t) => sum + (t.amount?.value || t.amount || 0), 0) : 0).toFixed(2) %></span>
+                                    <span class="summary-value">$<%= helpers.calculateTotalAmount(eob).toFixed(2) %></span>
                                 </div>
                             </div>
                         </div>

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getPatientFundingSummary, getSpecificEOB, getPatientCoverage, getExplanationOfBenefits, getPractitionerByPatient, getOrganizationByPatient } from '../services/epicService.js';
+// Helper functions removed - now using direct API data mapping
 import { getConfig } from '../config/index.js';
 
 const router = Router();
@@ -56,7 +57,16 @@ router.get('/', async (req, res) => {
       console.error('❌ Error reading template file:', templateError);
     }
     
-    res.render('funding', { fundingData, config });
+    res.render('funding', { 
+      fundingData, 
+      config,
+      helpers: {
+        calculateTotalAmount,
+        calculatePatientResponsibility,
+        calculateCopayAmount,
+        calculateItemPatientResponsibility
+      }
+    });
     console.log('✅ Template rendered successfully');
     
   } catch (err: any) {
@@ -266,7 +276,16 @@ router.get('/dashboard', async (req, res) => {
   try {
     const fundingData = await getPatientFundingSummary(tokenData.access_token, patientId);
     const config = getConfig();
-    res.render('funding-dashboard', { fundingData, config });
+    res.render('funding-dashboard', { 
+      fundingData, 
+      config,
+      helpers: {
+        calculateTotalAmount,
+        calculatePatientResponsibility,
+        calculateCopayAmount,
+        calculateItemPatientResponsibility
+      }
+    });
   } catch (err: any) {
     console.error('Failed to fetch patient funding data:', err.message);
     res.status(500).send('Error fetching patient funding data.');
@@ -349,22 +368,70 @@ function simulateStatusProgression(submission: any) {
 }
 
 /**
- * Helper functions for data transformation
+ * Helper functions for data transformation - Using direct API data
  */
 function calculateTotalAmount(eobData: any): number {
+  // Look for "submitted" total in the API response
   if (eobData.total && eobData.total.length > 0) {
-    return eobData.total.reduce((sum: number, total: any) => {
-      return sum + (total.amount?.value || 0);
-    }, 0);
+    const submittedTotal = eobData.total.find((total: any) => {
+      const categoryCode = total.category?.coding?.[0]?.code;
+      const categoryText = getTextFromFHIR(total.category);
+      return categoryCode === 'submitted' || categoryText.toLowerCase().includes('submitted');
+    });
+    if (submittedTotal) {
+      return submittedTotal.amount?.value || 0;
+    }
   }
   return 0;
 }
 
 function calculatePatientResponsibility(eobData: any): number {
+  // Look for patient responsibility in totals or calculate from adjudications
+  if (eobData.total && eobData.total.length > 0) {
+    const patientTotal = eobData.total.find((total: any) => {
+      const categoryText = getTextFromFHIR(total.category);
+      return categoryText.toLowerCase().includes('patient') || 
+             categoryText.toLowerCase().includes('responsibility') ||
+             categoryText.toLowerCase().includes('copay') ||
+             categoryText.toLowerCase().includes('deductible');
+    });
+    if (patientTotal) {
+      return patientTotal.amount?.value || 0;
+    }
+  }
+  
+  // If no total found, calculate from item adjudications
   if (eobData.item && eobData.item.length > 0) {
-    return eobData.item.reduce((sum: number, item: any) => {
-      return sum + calculateItemPatientResponsibility(item);
-    }, 0);
+    let totalPatientResponsibility = 0;
+    eobData.item.forEach((item: any) => {
+      if (item.adjudication && item.adjudication.length > 0) {
+        item.adjudication.forEach((adj: any) => {
+          const categoryText = getTextFromFHIR(adj.category);
+          if (categoryText.toLowerCase().includes('patient') || 
+              categoryText.toLowerCase().includes('responsibility') ||
+              categoryText.toLowerCase().includes('copay') ||
+              categoryText.toLowerCase().includes('deductible')) {
+            totalPatientResponsibility += adj.amount?.value || 0;
+          }
+        });
+      }
+    });
+    return totalPatientResponsibility;
+  }
+  
+  return 0;
+}
+
+function calculateCopayAmount(eobData: any): number {
+  // Look for "copay" total in the API response
+  if (eobData.total && eobData.total.length > 0) {
+    const copayTotal = eobData.total.find((total: any) => {
+      const categoryText = getTextFromFHIR(total.category);
+      return categoryText.toLowerCase().includes('copay');
+    });
+    if (copayTotal) {
+      return copayTotal.amount?.value || 0;
+    }
   }
   return 0;
 }
