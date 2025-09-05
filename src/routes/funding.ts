@@ -457,20 +457,17 @@ function calculateCopayAmount(eobData: any): number {
 
 function calculateItemPatientResponsibility(item: any): number {
   if (item.adjudication && item.adjudication.length > 0) {
-    return item.adjudication.reduce((sum: number, adj: any) => {
-      const categoryText = getTextFromFHIR(adj.category);
-      if (categoryText.toLowerCase().includes('patient') || 
-          categoryText.toLowerCase().includes('responsibility') ||
-          categoryText.toLowerCase().includes('deductible') ||
-          categoryText.toLowerCase().includes('copay')) {
-        const amt = adj.amount;
-        const val = (typeof amt === 'number') ? amt : (amt?.value || 0);
-        return sum + val;
-      }
-      return sum;
-    }, 0);
+    // Only use adjudication with category exactly "Patient Responsibility"
+    const explicit = item.adjudication.find((adj: any) => {
+      const categoryText = getTextFromFHIR(adj.category).toLowerCase();
+      return categoryText === 'patient responsibility';
+    });
+    if (explicit) {
+      const amt = explicit.amount;
+      return (typeof amt === 'number') ? amt : (amt?.value || 0);
+    }
   }
-  return item.net?.value || item.net || 0;
+  return 0;
 }
 
 function transformLineItems(items: any[]): any[] {
@@ -478,12 +475,15 @@ function transformLineItems(items: any[]): any[] {
     service: getTextFromFHIR(item.productOrService),
     startDate: item.servicedPeriod?.start || item.servicedDate || 'N/A',
     endDate: item.servicedPeriod?.end || item.servicedDate || 'N/A',
-    billedAmount: item.net?.value || 0,
+    // Preserve original billedAmount for backward compatibility
+    billedAmount: item.net?.value || item.net || 0,
+    // New explicit field for Net
+    net: item.net?.value || item.net || 0,
     patientResponsibility: calculateItemPatientResponsibility(item),
     category: getTextFromFHIR(item.category),
     adjudications: item.adjudication?.map((adj: any) => ({
       category: getTextFromFHIR(adj.category),
-      amount: adj.amount?.value || 0,
+      amount: adj.amount?.value || adj.amount || 0,
       reason: getTextFromFHIR(adj.reason)
     })) || []
   }));

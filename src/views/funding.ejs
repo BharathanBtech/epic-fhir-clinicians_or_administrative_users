@@ -885,7 +885,7 @@
                             <th>Service</th>
                             <th>Start Date</th>
                             <th>End Date</th>
-                            <th>Billed</th>
+                            <th>Net</th>
                             <th>Patient Responsibility</th>
                         </tr>
                     </thead>
@@ -893,71 +893,25 @@
             `;
 
             lineItems.forEach(item => {
-                const billedAmount = item.net?.value || 0;
-                
-                // Debug: Log adjudication data
-                console.log('Item adjudications:', item.adjudication);
-                
-                const coveredAmount = item.adjudication?.reduce((sum, adj) => {
-                    const categoryText = getTextFromFHIR(adj.category);
-                    console.log('Adjudication category:', categoryText, 'amount:', adj.amount?.value);
-                    if (categoryText.toLowerCase().includes('benefit')) return sum + (adj.amount?.value || 0);
-                    return sum;
-                }, 0) || 0;
-                
-                let patientResponsibility = item.adjudication?.reduce((sum, adj) => {
-                    const categoryText = getTextFromFHIR(adj.category);
-                    console.log('Adjudication category:', categoryText, 'amount:', adj.amount?.value);
-                    if (categoryText.toLowerCase().includes('patient') || 
-                        categoryText.toLowerCase().includes('responsibility') ||
-                        categoryText.toLowerCase().includes('deductible') ||
-                        categoryText.toLowerCase().includes('copay')) {
-                        return sum + (adj.amount?.value || 0);
+                // Items are transformed on the server: use provided fields
+                const netAmount = toNumericAmount(item.net ?? item.billedAmount);
+                let patientResponsibility = 0;
+                if (Array.isArray(item.adjudications)) {
+                    const explicitPR = item.adjudications.find(adj => (adj.category || '').toLowerCase() === 'patient responsibility');
+                    if (explicitPR) {
+                        patientResponsibility = toNumericAmount(explicitPR.amount);
                     }
-                    return sum;
-                }, 0) || 0;
-                
-                // If no specific patient responsibility found, calculate as billed - covered
-                if (patientResponsibility === 0 && billedAmount > 0) {
-                    patientResponsibility = billedAmount - coveredAmount;
-                    console.log('Calculated patient responsibility as billed - covered:', patientResponsibility);
                 }
-                
-                // Debug: Log date information
-                console.log('Item date info:', {
-                    servicedPeriodStart: item.servicedPeriodStart,
-                    servicedPeriodEnd: item.servicedPeriodEnd,
-                    servicedDate: item.servicedDate,
-                    servicedPeriod: item.servicedPeriod
-                });
-                
-                // Format the service dates
-                let startDate = 'N/A';
-                let endDate = 'N/A';
-                
-                if (item.servicedPeriodStart) {
-                    startDate = item.servicedPeriodStart;
-                } else if (item.servicedPeriod?.start) {
-                    startDate = item.servicedPeriod.start;
-                } else if (item.servicedDate) {
-                    startDate = item.servicedDate;
+                if (!patientResponsibility && typeof item.patientResponsibility !== 'undefined') {
+                    patientResponsibility = toNumericAmount(item.patientResponsibility);
                 }
-                
-                if (item.servicedPeriodEnd) {
-                    endDate = item.servicedPeriodEnd;
-                } else if (item.servicedPeriod?.end) {
-                    endDate = item.servicedPeriod.end;
-                } else if (item.servicedDate) {
-                    endDate = item.servicedDate;
-                }
-                
                 html += `
                     <tr>
-                        <td>${getTextFromFHIR(item.productOrService)}</td>
-                        <td>${startDate}</td>
-                        <td>${endDate}</td>
-                        <td>$${billedAmount.toFixed(2)}</td>
-                        <td>$${patientResponsibility.toFixed(2)}</td>
+                        <td>${item.service || 'N/A'}</td>
+                        <td>${item.startDate || 'N/A'}</td>
+                        <td>${item.endDate || 'N/A'}</td>
+                        <td>$${netAmount.toFixed(2)}</td>
+                        <td>$${(patientResponsibility || 0).toFixed(2)}</td>
                     </tr>
                 `;
             });

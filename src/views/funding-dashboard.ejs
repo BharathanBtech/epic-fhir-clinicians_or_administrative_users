@@ -1811,7 +1811,7 @@
                             <th>Service</th>
                             <th>Start Date</th>
                             <th>End Date</th>
-                            <th>Billed</th>
+                            <th>Net</th>
                             <th>Patient Responsibility</th>
                         </tr>
                     </thead>
@@ -1819,16 +1819,25 @@
             `;
 
             lineItems.forEach(item => {
-                const billedAmount = item.net?.value || 0;
-                const patientResponsibility = item.patientResponsibility || 0;
+                const netAmount = toNumericAmount ? toNumericAmount(item.net ?? item.billedAmount) : ((item.net?.value || item.net || item.billedAmount || 0));
+                let patientResponsibility = 0;
+                if (Array.isArray(item.adjudications)) {
+                    const explicitPR = item.adjudications.find(adj => (adj.category || '').toLowerCase() === 'patient responsibility');
+                    if (explicitPR) {
+                        patientResponsibility = toNumericAmount ? toNumericAmount(explicitPR.amount) : (explicitPR.amount?.value || explicitPR.amount || 0);
+                    }
+                }
+                if (!patientResponsibility && typeof item.patientResponsibility !== 'undefined') {
+                    patientResponsibility = toNumericAmount ? toNumericAmount(item.patientResponsibility) : (item.patientResponsibility?.value || item.patientResponsibility || 0);
+                }
                 
                 html += `
                     <tr>
                         <td>${item.service || 'N/A'}</td>
                         <td>${item.startDate || 'N/A'}</td>
                         <td>${item.endDate || 'N/A'}</td>
-                        <td>$${billedAmount.toFixed(2)}</td>
-                        <td>$${patientResponsibility.toFixed(2)}</td>
+                        <td>$${netAmount.toFixed(2)}</td>
+                        <td>$${(patientResponsibility || 0).toFixed(2)}</td>
                     </tr>
                 `;
             });
